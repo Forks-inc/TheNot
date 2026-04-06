@@ -2,8 +2,10 @@
 // learn more about it in the docs: https://pris.ly/d/prisma-schema
 
 datasource db {
-  provider = "sqlite"
-  url      = env("DATABASE_URL")
+  provider     = "postgresql"
+  url          = env("DATABASE_URL")
+  directUrl    = env("DIRECT_URL")
+  relationMode = "prisma"
 }
 
 
@@ -58,12 +60,12 @@ model Account {
   type              String
   provider          String
   providerAccountId String
-  refresh_token     String?
-  access_token      String?
+  refresh_token     String? @db.Text
+  access_token      String? @db.Text
   expires_at        Int?
   token_type        String?
   scope             String?
-  id_token          String?
+  id_token          String? @db.Text
   session_state     String?
   user              User    @relation(fields: [userId], references: [id], onDelete: Cascade)
 
@@ -90,7 +92,7 @@ model User {
   accounts       Account[]
   sessions       Session[]
   // Original fields adapted
-  websiteUrl     String?
+  websiteUrl     String?   @db.VarChar(255)
   groomFirstName String?
   groomLastName  String?
   brideFirstName String?
@@ -164,7 +166,7 @@ model Guest {
 model Event {
   id          String       @id @default(uuid())
   name        String
-  date        DateTime?
+  date        DateTime?    @db.Date
   startTime   String?
   endTime     String?
   venue       String?
