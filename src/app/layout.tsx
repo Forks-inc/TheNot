@@ -3,7 +3,7 @@ import "~/styles/globals.css";
 import { Inter } from "next/font/google";
 
 import { TRPCReactProvider } from "~/trpc/react";
-import { ClerkProvider } from "@clerk/nextjs";
+import { NextAuthProvider } from "./_components/auth-provider";
 import { EventFormProvider } from "./_components/contexts/event-form-context";
 import { GuestFormProvider } from "./_components/contexts/guest-form-context";
 import { Toaster } from "~/components/ui/toaster";
@@ -30,9 +30,9 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <ClerkProvider>
-      <html lang="en">
-        <body className={`font-sans ${inter.variable}`}>
+    <html lang="en">
+      <body className={`font-sans ${inter.variable}`}>
+        <NextAuthProvider>
           <TRPCReactProvider>
             <EventFormProvider>
               <GuestFormProvider>
@@ -41,8 +41,8 @@ export default function RootLayout({
               </GuestFormProvider>
             </EventFormProvider>
           </TRPCReactProvider>
-        </body>
-      </html>
-    </ClerkProvider>
+        </NextAuthProvider>
+      </body>
+    </html>
   );
 }

@@ -1,24 +1,19 @@
 "use client";
 
-import { SignOutButton, useUser } from "@clerk/nextjs";
+import { signOut, useSession } from "next-auth/react";
 import { useState } from "react";
 import { api } from "~/trpc/react";
 import { LoadingSpinner } from "../loaders";
 import { sharedStyles } from "../../utils/shared-styles";
 
 export default function NamesForm() {
-  const { isLoaded, isSignedIn, user } = useUser();
+  const { data: session, status } = useSession();
+  const user = session?.user;
+  const isLoaded = status !== "loading";
+  const isSignedIn = !!session;
 
   const createWebsite = api.website.create.useMutation({
     onSuccess: () => (window.location.href = "/dashboard"),
-    // onError: (e) => {
-    //       const errorMessage = e.data?.zodError?.fieldErrors.content;
-    //       if (errorMessage && errorMessage[0]) {
-    //         toast.error(errorMessage[0]);
-    //       } else {
-    //         toast.error("Failed to post! Please try again later.");
-    //       }
-    //     },
   });
 
   const [nameData, setNameData] = useState({
@@ -37,15 +32,15 @@ export default function NamesForm() {
     });
   };
 
-  if (!isLoaded || !isSignedIn) {
+  if (!isLoaded || !isSignedIn || !user) {
     return null;
   }
 
   return (
     <main>
       <div className="flex justify-between bg-pink-300 p-4">
-        <h1>{user.firstName}</h1>
-        <SignOutButton />
+        <h1>{user.name}</h1>
+        <button onClick={() => void signOut()}>Sign Out</button>
       </div>
       <div className="flex min-h-screen flex-col items-center justify-center">
         <div className="container flex flex-col items-center justify-center gap-6 px-4 py-16 ">
@@ -55,6 +50,7 @@ export default function NamesForm() {
             </div>
           )}
           <h1 className="text-3xl">Welcome ya love birds! Enter your names</h1>
+          {/* ... inputs ... */}
           <input
             placeholder="First name"
             className="w-64 rounded-md border-2 border-slate-400 p-4"
@@ -86,7 +82,7 @@ export default function NamesForm() {
               createWebsite.mutate({
                 ...nameData,
                 basePath: window.location.origin,
-                email: user.primaryEmailAddress?.emailAddress ?? "",
+                email: user.email ?? "",
               })
             }
             className={`rounded-full bg-${sharedStyles.primaryColor} px-16 py-4 text-white`}

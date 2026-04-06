@@ -1,5 +1,5 @@
 import { api } from "~/trpc/server";
-import { currentUser } from "@clerk/nextjs";
+import { getServerAuthSession } from "~/server/auth";
 import { redirect } from "next/navigation";
 import { sharedStyles } from "../utils/shared-styles";
 import {
@@ -41,7 +41,8 @@ const uploadImage = async (formData: FormData): Promise<{ ok: boolean }> => {
   )
     .then(async (data) => {
       console.log("File upload successful!", data);
-      const user = await currentUser();
+      const session = await getServerAuthSession();
+      const user = session?.user;
       const photoName = files[0]!.name;
       const objectUrl = `https://${Bucket}.s3.${region}.amazonaws.com/${photoName}`;
       await api.website.updateCoverPhoto.mutate({
@@ -66,7 +67,8 @@ const deleteImage = async (imageKey: string): Promise<{ ok: boolean }> => {
       }),
     )
       .then(async () => {
-        const user = await currentUser();
+        const session = await getServerAuthSession();
+        const user = session?.user;
         await api.website.updateCoverPhoto.mutate({
           userId: user?.id,
           coverPhotoUrl: null,

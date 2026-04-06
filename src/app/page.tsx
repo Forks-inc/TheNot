@@ -1,5 +1,5 @@
 import { unstable_noStore as noStore } from "next/cache";
-import { SignedIn, SignedOut } from "@clerk/nextjs";
+import { getServerAuthSession } from "~/server/auth";
 
 import { type Metadata } from "next";
 import NonAuthenticatedView from "./_components/home/non-authenticated-view";
@@ -11,15 +11,11 @@ export const metadata: Metadata = {
 
 export default async function Home() {
   noStore();
+  const session = await getServerAuthSession();
 
   return (
     <>
-      <SignedOut>
-        <NonAuthenticatedView />
-      </SignedOut>
-      <SignedIn>
-        <AuthenticatedView />
-      </SignedIn>
+      {!session ? <NonAuthenticatedView /> : <AuthenticatedView />}
     </>
   );
 }
