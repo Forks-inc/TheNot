@@ -5,11 +5,11 @@ import { type Invitation, type User } from "~/app/utils/shared-types";
 
 export const dashboardRouter = createTRPCRouter({
   getByUserId: publicProcedure.query(async ({ ctx }) => {
-    if (!ctx.auth.userId) return null;
+    if (!ctx.session?.user) return null;
 
     const households = await ctx.db.household.findMany({
       where: {
-        userId: ctx.auth.userId,
+        userId: ctx.session.user.id,
       },
       select: {
         guests: {
@@ -44,13 +44,13 @@ export const dashboardRouter = createTRPCRouter({
 
     const invitations = await ctx.db.invitation.findMany({
       where: {
-        userId: ctx.auth.userId,
+        userId: ctx.session.user.id,
       },
     });
 
     const events = await ctx.db.event.findMany({
       where: {
-        userId: ctx.auth.userId,
+        userId: ctx.session.user.id,
       },
       orderBy: {
         createdAt: "asc",
@@ -72,15 +72,15 @@ export const dashboardRouter = createTRPCRouter({
       },
     });
 
-    const currentUser: User | null = await ctx.db.user.findFirst({
+    const currentUser = await ctx.db.user.findFirst({
       where: {
-        id: ctx.auth.userId,
+        id: ctx.session.user.id,
       },
     });
 
     const website = await ctx.db.website.findFirst({
       where: {
-        userId: ctx.auth.userId,
+        userId: ctx.session.user.id,
       },
       include: {
         generalQuestions: {
@@ -153,7 +153,7 @@ export const dashboardRouter = createTRPCRouter({
       weddingData,
       totalGuests: await ctx.db.guest.count({
         where: {
-          userId: ctx.auth.userId,
+          userId: ctx.session.user.id,
         },
       }),
       totalEvents: events.length,

@@ -18,10 +18,10 @@ const s3 = new S3Client({
 
 export const uploadRouter = createTRPCRouter({
   getByUserId: publicProcedure.query(async ({ ctx }) => {
-    if (!ctx.auth) return;
+    if (!ctx.session?.user) return;
     return ctx.db.website.findFirst({
       where: {
-        userId: ctx.auth.userId ?? "",
+        userId: ctx.session.user.id ?? "",
       },
     });
   }),

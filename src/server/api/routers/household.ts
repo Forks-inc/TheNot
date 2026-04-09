@@ -34,7 +34,7 @@ export const householdRouter = createTRPCRouter({
       }),
     )
     .mutation(async ({ input, ctx }) => {
-      const userId = ctx.auth.userId;
+      const userId = ctx.session.user.id;
 
       const household = await ctx.db.household.create({
         data: {
@@ -161,7 +161,7 @@ export const householdRouter = createTRPCRouter({
       }),
     )
     .mutation(async ({ ctx, input }) => {
-      const userId = ctx.auth.userId;
+      const userId = ctx.session.user.id;
 
       const updatedHousehold = await ctx.db.household.update({
         where: {

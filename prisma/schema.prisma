@@ -97,6 +97,7 @@ model User {
   groomLastName  String?
   brideFirstName String?
   brideLastName  String?
+  password       String?
 }
 
 model VerificationToken {

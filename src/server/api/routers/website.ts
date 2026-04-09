@@ -22,7 +22,7 @@ export const websiteRouter = createTRPCRouter({
       }),
     )
     .mutation(async ({ input, ctx }) => {
-      const userId = ctx.auth.userId;
+      const userId = ctx.session.user.id;
 
       // TODO: needa check for dupes
       const {
@@ -106,7 +106,7 @@ export const websiteRouter = createTRPCRouter({
 
       await ctx.db.user.update({
         where: {
-          id: ctx.auth.userId,
+          id: ctx.session.user.id,
         },
         data: {
           websiteUrl: url,
@@ -115,7 +115,7 @@ export const websiteRouter = createTRPCRouter({
 
       return await ctx.db.website.update({
         where: {
-          userId: ctx.auth.userId,
+          userId: ctx.session.user.id,
         },
         data: {
           isPasswordEnabled: input.isPasswordEnabled ?? undefined,
@@ -163,10 +163,10 @@ export const websiteRouter = createTRPCRouter({
     }),
 
   getByUserId: publicProcedure.query(async ({ ctx }) => {
-    if (!ctx.auth) return;
+    if (!ctx.session) return;
     return ctx.db.website.findFirst({
       where: {
-        userId: ctx.auth.userId ?? "",
+        userId: ctx.session.user.id ?? "",
       },
     });
   }),

@@ -28,7 +28,7 @@ export const eventRouter = createTRPCRouter({
         attire,
         description,
       } = input;
-      const userId = ctx.auth.userId;
+      const userId = ctx.session.user.id;
 
       const newEvent = await ctx.db.event.create({
         data: {
@@ -67,10 +67,10 @@ export const eventRouter = createTRPCRouter({
     }),
 
   getAllByUserId: publicProcedure.query(async ({ ctx }) => {
-    if (!ctx.auth.userId) return;
+    if (!ctx.session?.user) return;
     return await ctx.db.event.findMany({
       where: {
-        userId: ctx.auth.userId,
+        userId: ctx.session.user.id,
       },
     });
   }),

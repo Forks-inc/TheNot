@@ -67,13 +67,14 @@ type Guest = {
 
 type User = {
   id: string;
-  websiteUrl: string;
-  email: string;
-  groomFirstName: string;
-  groomLastName: string;
-  brideFirstName: string;
-  brideLastName: string;
+  websiteUrl: string | null;
+  email: string | null;
+  groomFirstName: string | null;
+  groomLastName: string | null;
+  brideFirstName: string | null;
+  brideLastName: string | null;
 };
+
 
 type WeddingDate = {
   standardFormat: string;
