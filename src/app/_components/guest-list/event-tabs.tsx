@@ -1,6 +1,8 @@
 import Link from "next/link";
 import { useToggleEventForm } from "../contexts/event-form-context";
 import { sharedStyles } from "~/app/utils/shared-styles";
+import { Plus } from "lucide-react";
+import { motion } from "framer-motion";
 
 import { type Event } from "~/app/utils/shared-types";
 
@@ -16,41 +18,43 @@ export default function EventsTabs({
   const toggleEventForm = useToggleEventForm();
 
   return (
-    <>
-      <ul className="flex gap-5">
-        <li
-          className={`cursor-pointer border-b-4 py-3 text-sm hover:border-gray-600 ${
-            selectedEventId === "all" ? "border-gray-600" : "border-transparent"
+    <div className="flex flex-col md:flex-row items-center justify-between gap-6 border-b border-zinc-900 pb-8 mb-8">
+      <div className="flex flex-wrap gap-2">
+        <Link 
+          href="?event=all" 
+          scroll={false}
+          className={`px-6 py-2.5 rounded-full text-xs font-black uppercase tracking-widest transition-all ${
+            selectedEventId === "all" 
+              ? "bg-white text-black shadow-lg shadow-white/10" 
+              : "bg-zinc-900 text-zinc-500 hover:text-white border border-zinc-800"
           }`}
         >
-          <Link href="?event=all" scroll={false}>
-            All Events
+          All Guests
+        </Link>
+        
+        {events?.map((event) => (
+          <Link
+            key={event.id}
+            href={`?event=${event.id}`}
+            scroll={false}
+            className={`px-6 py-2.5 rounded-full text-xs font-black uppercase tracking-widest transition-all ${
+              selectedEventId === event.id
+                ? "bg-white text-black shadow-lg shadow-white/10"
+                : "bg-zinc-900 text-zinc-500 hover:text-white border border-zinc-800"
+            }`}
+          >
+            {event.name}
           </Link>
-        </li>
-        {events?.map((event) => {
-          return (
-            <li
-              className={`cursor-pointer border-b-4 py-3 text-sm hover:border-gray-600 ${
-                selectedEventId === event.id
-                  ? "border-gray-600"
-                  : "border-transparent"
-              }`}
-              key={event.id}
-            >
-              <Link href={`?event=${event.id}`} scroll={false}>
-                {event.name}
-              </Link>
-            </li>
-          );
-        })}
-        <button
-          className={`pb-1 text-sm font-semibold text-${sharedStyles.primaryColor}`}
-          onClick={() => toggleEventForm()}
-        >
-          + New Event
-        </button>
-      </ul>
-      <hr className="relative -left-20 bottom-0 w-screen border-gray-300" />
-    </>
+        ))}
+      </div>
+
+      <button
+        className="flex items-center gap-2 px-6 py-2.5 rounded-full bg-primary/10 border border-primary/20 text-primary hover:bg-primary/20 transition-all active:scale-95 group text-xs font-black uppercase tracking-widest"
+        onClick={() => toggleEventForm()}
+      >
+        <Plus className="h-4 w-4 transition-transform group-hover:rotate-90" />
+        <span>New Event</span>
+      </button>
+    </div>
   );
 }

@@ -1,6 +1,6 @@
 import { sharedStyles } from "~/app/utils/shared-styles";
 import { useToggleGuestForm } from "../../contexts/guest-form-context";
-
+import { Save, Trash2, X } from "lucide-react";
 import { type Dispatch, type SetStateAction } from "react";
 
 type EditFormButtonsProps = {
@@ -15,48 +15,48 @@ export default function EditFormButtons({
   const toggleGuestForm = useToggleGuestForm();
 
   return (
-    <div
-      className={`fixed bottom-0 z-20 flex ${sharedStyles.sidebarFormWidth} flex-col gap-3 border-t bg-white px-3 py-5`}
-    >
-      <div className="flex gap-3 text-sm">
+    <div className="space-y-4">
+      <div className="flex flex-col sm:flex-row gap-3">
         <button
+          type="button"
           disabled={isUpdatingHousehold}
           onClick={() => toggleGuestForm()}
-          className={`w-1/2 ${sharedStyles.secondaryButton({
-            py: "py-2",
+          className={`flex-1 ${sharedStyles.secondaryButton({
             isLoading: isUpdatingHousehold,
           })}`}
         >
-          Cancel
+          <div className="flex items-center justify-center gap-2">
+            <X className="h-4 w-4" />
+            <span>Cancel</span>
+          </div>
         </button>
+        
         <button
           id="edit-save"
           name="edit-button"
           type="submit"
           disabled={isUpdatingHousehold}
-          className={`w-1/2 ${sharedStyles.primaryButton({
-            px: "px-2",
-            py: "py-2",
+          className={`flex-1 ${sharedStyles.primaryButton({
             isLoading: isUpdatingHousehold,
           })}`}
         >
-          {isUpdatingHousehold ? "Processing..." : "Save"}
+          <div className="flex items-center justify-center gap-2">
+            <Save className="h-4 w-4" />
+            <span>{isUpdatingHousehold ? "Saving..." : "Save Changes"}</span>
+          </div>
         </button>
       </div>
+
       <button
         onClick={(e) => {
           e.preventDefault();
           setShowDeleteConfirmation(true);
         }}
-        className={`text-sm font-bold ${
-          isUpdatingHousehold ? "cursor-not-allowed" : "hover:underline"
-        } ${
-          isUpdatingHousehold
-            ? "text-pink-200"
-            : `text-${sharedStyles.primaryColor}`
-        }`}
+        className="w-full py-2 text-xs font-black uppercase tracking-widest text-zinc-600 hover:text-rose-500 transition-colors flex items-center justify-center gap-2"
+        disabled={isUpdatingHousehold}
       >
-        {isUpdatingHousehold ? "Processing..." : "Delete Party"}
+        <Trash2 className="h-3 w-3" />
+        <span>{isUpdatingHousehold ? "Processing..." : "Delete Party"}</span>
       </button>
     </div>
   );

@@ -1,36 +1,20 @@
 import { sharedStyles } from "../utils/shared-styles";
 import { getServerAuthSession } from "~/server/auth";
 import Link from "next/link";
+import { User, LogOut, LayoutDashboard, Globe, Users, Calendar } from "lucide-react";
 
 export default async function Navbar() {
   const session = await getServerAuthSession();
   const user = session?.user;
+
+  const navLinks = [
+    { name: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
+    { name: "Website", href: "/wedding-website", icon: Globe },
+    { name: "Guest List", href: "/guest-list", icon: Users },
+    { name: "Events", href: "/events", icon: Calendar },
+  ];
+
   return (
-    <div
-      className={`pt-5 ${sharedStyles.desktopPaddingSides} ${sharedStyles.minPageWidth}`}
-    >
-      <h1 className="pb-4 text-3xl">{user?.name}</h1>
-      <ul className="flex justify-between">
-        <div className="flex gap-7">
-          <li className="border-b-4 border-transparent pb-5 hover:border-gray-600">
-            <Link className="" href="/">
-              Planning Tools
-            </Link>
-          </li>
-          <li className="border-b-4 border-transparent pb-5 hover:border-gray-600">
-            <Link href="/">Vendors</Link>
-          </li>
-          <li className="border-b-4 border-transparent pb-5 hover:border-gray-600">
-            <Link href="/">Wedding Website</Link>
-          </li>
-          <li className="border-b-4 border-transparent pb-5 hover:border-gray-600">
-            <Link href="/">Invitations</Link>
-          </li>
-          <li className="border-b-4 border-transparent pb-5 hover:border-gray-600">
-            <Link href="/">Registry</Link>
-          </li>
-          <li className="border-b-4 border-transparent pb-5 hover:border-gray-600">
-            <Link href="/">Attire & Rings</Link>
           </li>
           <li className="border-b-4 border-transparent pb-5 hover:border-gray-600">
             <Link href="/">Ideas & Advice</Link>

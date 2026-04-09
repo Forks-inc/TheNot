@@ -1,14 +1,14 @@
-// format: January 1, 2024
+// format: 1 de Enero de 2024
 function formatDateStandard(date: Date | null | undefined) {
   if (!date) return;
-  return date.toLocaleDateString("en-us", {
+  return date.toLocaleDateString("es-MX", {
     year: "numeric",
     month: "long",
     day: "numeric",
   });
 }
 
-// format: 01.24.2024
+// format: 24.01.2024 (DD.MM.YYYY - Mexico standard)
 function formatDateNumber(date: Date | null | undefined) {
   if (!date) return;
   const d = new Date(date);
@@ -19,7 +19,7 @@ function formatDateNumber(date: Date | null | undefined) {
   if (month.length < 2) month = "0" + month;
   if (day.length < 2) day = "0" + day;
 
-  return [month, day, year].join(".");
+  return [day, month, year].join(".");
 }
 
 // format: 2024-01-24 - this is the accepted format for HTML5 input pattern
@@ -36,7 +36,7 @@ function formatDateHTML5(date: Date | null | undefined) {
   return [year, month, day].join("-");
 }
 
-// format: Sunday, Jan. 1
+// format: Domingo, 1 de Ene.
 function convertDate(date: Date | null) {
   if (!date) return date;
   const day = date.getDay();
@@ -44,30 +44,30 @@ function convertDate(date: Date | null) {
   const datee = date.getDate();
 
   const abbreviatedMonths = [
-    "Jan.",
+    "Ene.",
     "Feb.",
     "Mar.",
-    "Apr.",
-    "May",
+    "Abr.",
+    "May.",
     "Jun.",
     "Jul.",
-    "Aug.",
+    "Ago.",
     "Sep.",
     "Oct.",
     "Nov.",
-    "Dec.",
+    "Dic.",
   ];
   const daysOfTheWeek = [
-    "Sunday",
-    "Monday",
-    "Tuesday",
-    "Wednesday",
-    "Thursday",
-    "Friday",
-    "Saturday",
+    "Domingo",
+    "Lunes",
+    "Martes",
+    "Miércoles",
+    "Jueves",
+    "Viernes",
+    "Sábado",
   ];
 
-  return `${daysOfTheWeek[day]}, ${abbreviatedMonths[month]} ${datee + 1}`;
+  return `${daysOfTheWeek[day]}, ${datee} de ${abbreviatedMonths[month]}`;
 }
 
 function calculateDaysRemaining(weddingDate: Date | null | undefined) {
@@ -85,7 +85,7 @@ function calculateDaysRemaining(weddingDate: Date | null | undefined) {
   );
 }
 
-// returns an array of times from 12pm to 11:45am (24hrs) in 15min increments
+// returns an array of times from 12:00 PM to 11:45 AM
 function generateTimes() {
   const times = [];
   for (let i = 720; i <= 2145; i += 15) {

@@ -1,6 +1,8 @@
 import { useToggleGuestForm } from "../contexts/guest-form-context";
 import { sharedStyles } from "~/app/utils/shared-styles";
 import ExampleTable from "./example-table";
+import { UserPlus, Download } from "lucide-react";
+import { motion } from "framer-motion";
 
 import { type Dispatch, type SetStateAction } from "react";
 import { type HouseholdFormData } from "~/app/utils/shared-types";
@@ -13,32 +15,52 @@ export default function NoGuestsView({
   setPrefillHousehold,
 }: NoGuestsViewProps) {
   const toggleGuestForm = useToggleGuestForm();
+  
   return (
-    <section className={sharedStyles.desktopPaddingSidesGuestList}>
-      <div className="my-10 w-[500px] rounded-md p-8 shadow-[0_3px_10px_rgb(0,0,0,0.2)]">
-        <h2 className="pb-3 text-2xl font-semibold">
-          Add Guests to This Event
-        </h2>
-        <p>
-          Simply add guests that you&apos;ve already added to other events, or
-          add a unique guest to this event.
-        </p>
-        <div className="mt-5 flex gap-5">
-          <button className={sharedStyles.primaryButton({ py: "py-2" })}>
-            Import Guests
+    <section className="flex flex-col items-center justify-center py-20 px-6">
+      <motion.div 
+        initial={{ opacity: 0, scale: 0.9 }}
+        animate={{ opacity: 1, scale: 1 }}
+        className="glass-card max-w-xl w-full p-12 rounded-[2.5rem] text-center space-y-8 relative overflow-hidden"
+      >
+        <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-primary/50 to-transparent" />
+        
+        <div className="space-y-3">
+          <div className="h-20 w-20 bg-primary/10 rounded-3xl flex items-center justify-center mx-auto mb-6 transition-transform hover:scale-110">
+            <UserPlus className="h-10 w-10 text-primary" />
+          </div>
+          <h2 className="text-3xl font-black italic tracking-tighter text-white">Your Guest List is Empty</h2>
+          <p className="text-zinc-500 text-sm leading-relaxed max-w-xs mx-auto">
+            Start adding guests to your special day. You can import from other events or create new invitations manually.
+          </p>
+        </div>
+
+        <div className="flex flex-col sm:flex-row gap-4 justify-center pt-4">
+          <button className={sharedStyles.secondaryButton()}>
+            <div className="flex items-center gap-2">
+              <Download className="h-4 w-4" />
+              <span>Import Guests</span>
+            </div>
           </button>
           <button
-            className={sharedStyles.primaryButton({ py: "py-2" })}
+            className={sharedStyles.primaryButton()}
             onClick={() => {
               setPrefillHousehold(undefined);
               toggleGuestForm();
             }}
           >
-            Add Guest
+            <div className="flex items-center gap-2">
+              <UserPlus className="h-4 w-4" />
+              <span>Add First Guest</span>
+            </div>
           </button>
         </div>
+      </motion.div>
+
+      <div className="mt-20 w-full max-w-5xl opacity-30 grayscale pointer-events-none">
+        <p className="text-center text-[10px] font-black uppercase tracking-[0.3em] text-zinc-600 mb-8">Sample View</p>
+        <ExampleTable />
       </div>
-      <ExampleTable />
     </section>
   );
 }

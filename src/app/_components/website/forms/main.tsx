@@ -7,7 +7,7 @@ import {
   useUpdateRsvpForm,
 } from "../../contexts/rsvp-form-context";
 import { useConfirmReloadPage } from "../../hooks";
-import { IoMdClose } from "react-icons/io";
+import { X, ChevronLeft } from "lucide-react";
 import FindYourInvitationForm from "./steps/find-your-invitation";
 import ConfirmNameForm from "./steps/confirm-name";
 import EventRsvpForm from "./steps/event-rsvp";
@@ -16,45 +16,46 @@ import QuestionMultipleChoice from "./steps/question-multiple-choice";
 import SendRsvp from "./steps/send-rsvp";
 import MultistepRsvpForm from "./multi-step-form";
 import RsvpConfirmation from "../rsvp-confirmation";
+import { motion, AnimatePresence } from "framer-motion";
 
 import { type ReactNode } from "react";
 import { type RsvpPageData } from "~/app/utils/shared-types";
 
-type MainRsvpFormProps = {
-  weddingData: RsvpPageData;
-  basePath: string;
-};
-
-const NUM_STATIC_STEPS = 4; // find invitation step, confirm household step, final step, and confirmation
+const NUM_STATIC_STEPS = 4;
 
 export default function MainRsvpForm({
   weddingData,
   basePath,
-}: MainRsvpFormProps) {
+}: {
+  weddingData: RsvpPageData;
+  basePath: string;
+}) {
   const rsvpFormData = useRsvpForm();
   const numSteps = useRef(NUM_STATIC_STEPS);
   const updateRsvpForm = useUpdateRsvpForm();
   const [currentStep, setCurrentStep] = useState<number>(1);
+  
   useConfirmReloadPage(currentStep > 1 && currentStep < numSteps.current);
+  
   useEffect(() => {
     updateRsvpForm({ weddingData });
   }, []);
 
   const submitRsvpForm = api.website.submitRsvpForm.useMutation({
-    onSuccess: () => {
-      setCurrentStep((prev) => prev + 1);
-    },
+    onSuccess: () => setCurrentStep((prev) => prev + 1),
     onError: (err) => {
-      if (err) window.alert(err);
-      else window.alert("Failed to submit rsvp! Please try again later.");
+      window.alert(err?.message ?? "Failed to submit RSVP. Please try again.");
     },
   });
-  const progress = (currentStep / numSteps.current) * 100;
+
+  const progress = (currentStep / (numSteps.current - 1)) * 100;
 
   const generateDynamicStepForms = useCallback(() => {
-    const newSteps = weddingData?.events?.reduce((acc: ReactNode[], event) => {
-      if (!event.collectRsvp) return acc;
-      // TODO: invitedGuests need to be filtered based on rsvp selection - shouldnt show question step forms for those who declined rsvp
+    const newSteps: ReactNode[] = [];
+    
+    weddingData?.events?.forEach((event) => {
+      if (!event.collectRsvp) return;
+      
       const invitedGuests = rsvpFormData.selectedHousehold?.guests.filter(
         (guest) =>
           guest.invitations.some(
@@ -64,106 +65,105 @@ export default function MainRsvpForm({
           ),
       );
 
-      if (invitedGuests !== undefined && invitedGuests.length > 0) {
-        acc.push(<EventRsvpForm event={event} invitedGuests={invitedGuests} />);
-        for (const question of event.questions) {
+      if (invitedGuests && invitedGuests.length > 0) {
+        newSteps.push(<EventRsvpForm event={event} invitedGuests={invitedGuests} />);
+        
+        event.questions.forEach((question) => {
           invitedGuests.forEach((guest) => {
-            question.type === "Text"
-              ? acc.push(
-                  <QuestionShortAnswer question={question} guest={guest} />,
-                )
-              : acc.push(
-                  <QuestionMultipleChoice question={question} guest={guest} />,
-                );
+            if (question.type === "Text") {
+              newSteps.push(<QuestionShortAnswer question={question} guest={guest} />);
+            } else {
+              newSteps.push(<QuestionMultipleChoice question={question} guest={guest} />);
+            }
           });
-        }
+        });
       }
-      return acc;
-    }, []);
+    });
 
     weddingData?.website.generalQuestions.forEach((question) => {
-      question.type === "Text"
-        ? newSteps.push(<QuestionShortAnswer question={question} />)
-        : newSteps.push(<QuestionMultipleChoice question={question} />);
+      if (question.type === "Text") {
+        newSteps.push(<QuestionShortAnswer question={question} />);
+      } else {
+        newSteps.push(<QuestionMultipleChoice question={question} />);
+      }
     });
 
     numSteps.current = newSteps.length + NUM_STATIC_STEPS;
     return newSteps;
   }, [weddingData, rsvpFormData.selectedHousehold]);
 
-  return (
-    <div className="pb-20 font-serif">
-      <ProgressBar
-        currentStep={currentStep}
-        progress={progress}
-        numSteps={numSteps.current}
-        basePath={basePath}
-      />
-      <form
-        className="m-auto w-[450px] py-5"
-        onSubmit={(e) => {
-          e.preventDefault();
-          submitRsvpForm.mutate(rsvpFormData);
-        }}
-      >
-        <MultistepRsvpForm
-          currentStep={currentStep}
-          setCurrentStep={setCurrentStep}
-        >
-          <FindYourInvitationForm />
-          <ConfirmNameForm />
-          {...generateDynamicStepForms()}
-          <SendRsvp isFetching={submitRsvpForm.isLoading} />
-          <RsvpConfirmation
-            basePath={basePath}
-            setCurrentStep={setCurrentStep}
-          />
-        </MultistepRsvpForm>
-      </form>
-    </div>
-  );
-}
+  const handleClose = () => {
+    if (currentStep <= 1 || window.confirm("Are you sure? Your RSVP has not been sent.")) {
+      window.location.href = basePath;
+    }
+  };
 
-const ProgressBar = ({
-  currentStep,
-  progress,
-  numSteps,
-  basePath,
-}: {
-  currentStep: number;
-  progress: number;
-  numSteps: number;
-  basePath: string;
-}) => {
   return (
-    <div className="fixed top-0 z-10 w-full bg-white px-10 py-1 text-center">
-      <IoMdClose
-        size={25}
-        className="absolute right-3 top-2 z-20 cursor-pointer"
-        onClick={() => {
-          if (
-            currentStep <= 1 ||
-            (currentStep > 1 &&
-              window.confirm("Are you sure? Your RSVP has not been sent."))
-          ) {
-            window.location.href = basePath;
-          }
-        }}
-      />
-      <h1 className="py-3 text-2xl">RSVP</h1>
-      <div className="relative mb-2.5 h-3 w-full rounded-full bg-gray-200">
-        <div
-          className="absolute left-0 top-0 mb-2.5 h-3 rounded-full bg-gray-700 transition-[width]"
-          style={{
-            width:
-              currentStep < 3
-                ? "3%"
-                : currentStep === numSteps - 1
-                  ? "99%"
-                  : `${progress}%`,
+    <div className="min-h-screen bg-black flex flex-col items-center pt-24 pb-12 px-6">
+      {/* Premium Progress Header */}
+      <div className="fixed top-0 inset-x-0 z-50 bg-black/80 backdrop-blur-md border-b border-white/[0.05]">
+        <div className="max-w-2xl mx-auto h-20 flex items-center justify-between px-6">
+          <div className="flex items-center gap-4">
+            <button 
+              type="button"
+              onClick={handleClose}
+              className="p-2 rounded-full hover:bg-white/5 transition-colors text-zinc-500 hover:text-white"
+            >
+              <X className="h-5 w-5" />
+            </button>
+            <div className="h-4 w-px bg-zinc-800" />
+            <span className="text-[10px] font-black uppercase tracking-[0.3em] text-zinc-400">RSVP Flow</span>
+          </div>
+          
+          <div className="flex flex-col items-end gap-1">
+            <span className="text-[10px] font-black uppercase tracking-widest text-primary">
+              Step {currentStep} of {numSteps.current - 1}
+            </span>
+            <div className="w-32 h-1 bg-zinc-900 rounded-full overflow-hidden">
+              <motion.div 
+                initial={{ width: 0 }}
+                animate={{ width: `${progress}%` }}
+                className="h-full bg-primary"
+              />
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div className="w-full max-w-xl">
+        <form
+          className="relative"
+          onSubmit={(e) => {
+            e.preventDefault();
+            submitRsvpForm.mutate(rsvpFormData);
           }}
-        ></div>
+        >
+          <AnimatePresence mode="wait">
+            <motion.div
+              key={currentStep}
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -10 }}
+              transition={{ duration: 0.3 }}
+              className="glass-card p-10 md:p-12 rounded-[3rem] bg-white/[0.02] border border-white/[0.05]"
+            >
+              <MultistepRsvpForm
+                currentStep={currentStep}
+                setCurrentStep={setCurrentStep}
+              >
+                <FindYourInvitationForm />
+                <ConfirmNameForm />
+                {...generateDynamicStepForms()}
+                <SendRsvp isFetching={submitRsvpForm.isLoading} />
+                <RsvpConfirmation
+                  basePath={basePath}
+                  setCurrentStep={setCurrentStep}
+                />
+              </MultistepRsvpForm>
+            </motion.div>
+          </AnimatePresence>
+        </form>
       </div>
     </div>
   );
-};
+}

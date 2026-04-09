@@ -1,6 +1,6 @@
 import AnimatedInputLabel from "../animated-input-label";
-
 import { type HouseholdFormData } from "~/app/utils/shared-types";
+import { MapPin, Phone, Mail, Globe } from "lucide-react";
 
 type ContactFormProps = {
   householdFormData: HouseholdFormData;
@@ -18,24 +18,28 @@ export default function ContactForm({
   handleOnChange,
 }: ContactFormProps) {
   return (
-    <div className="grid grid-cols-1 grid-rows-[repeat(5,50px)] gap-3">
-      <AnimatedInputLabel
-        id="household-address1"
-        inputValue={householdFormData.address1 ?? ""}
-        fieldName="address1"
-        labelText="Street Address"
-        handleOnChange={handleOnChange}
-      />
-      <AnimatedInputLabel
-        id="household-address2"
-        inputValue={householdFormData.address2 ?? ""}
-        fieldName="address2"
-        labelText="Apt/Suite/Other"
-        handleOnChange={handleOnChange}
-      />
+    <div className="space-y-6">
+      <div className="grid grid-cols-1 gap-4">
+        <div className="relative group">
+          <AnimatedInputLabel
+            id="household-address1"
+            inputValue={householdFormData.address1 ?? ""}
+            fieldName="address1"
+            labelText="Street Address"
+            handleOnChange={handleOnChange}
+          />
+        </div>
+        <AnimatedInputLabel
+          id="household-address2"
+          inputValue={householdFormData.address2 ?? ""}
+          fieldName="address2"
+          labelText="Apt/Suite/Other (Optional)"
+          handleOnChange={handleOnChange}
+        />
+      </div>
 
-      <div className="flex gap-3">
-        <div className="w-1/2">
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+        <div className="sm:col-span-1">
           <AnimatedInputLabel
             id="household-city"
             inputValue={householdFormData.city ?? ""}
@@ -44,19 +48,24 @@ export default function ContactForm({
             handleOnChange={handleOnChange}
           />
         </div>
-        <select
-          value={householdFormData.state}
-          onChange={(e) =>
-            handleOnChange({ field: "state", inputValue: e.target.value })
-          }
-          className="w-1/4 rounded-lg border p-3"
-        >
-          <option defaultValue="State">State</option>
-          <option>AL</option>
-          <option>AR</option>
-          <option>WY</option>
-        </select>
-        <div className="w-1/4">
+        <div className="relative">
+          <select
+            value={householdFormData.state}
+            onChange={(e) =>
+              handleOnChange({ field: "state", inputValue: e.target.value })
+            }
+            className="w-full h-[52px] rounded-2xl bg-zinc-900/50 border border-zinc-800 px-4 text-sm text-zinc-400 focus:text-white focus:border-primary focus:ring-1 focus:ring-primary/20 transition-all outline-none appearance-none"
+          >
+            <option value="" disabled>State</option>
+            <option value="AL">AL</option>
+            <option value="AR">AR</option>
+            <option value="WY">WY</option>
+          </select>
+          <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-zinc-600">
+            <MapPin className="h-4 w-4" />
+          </div>
+        </div>
+        <div>
           <AnimatedInputLabel
             id="household-zipCode"
             inputValue={householdFormData.zipCode ?? ""}
@@ -66,20 +75,27 @@ export default function ContactForm({
           />
         </div>
       </div>
-      <select
-        className="w-100 rounded-lg border p-3"
-        value={householdFormData.country}
-        onChange={(e) =>
-          handleOnChange({ field: "country", inputValue: e.target.value })
-        }
-      >
-        <option defaultValue="State">Country</option>
-        <option>Murca</option>
-        <option>Mexico</option>
-        <option>Canada</option>
-      </select>
-      <div className="flex gap-3">
-        <div className="w-1/2">
+
+      <div className="relative">
+        <select
+          className="w-full h-[52px] rounded-2xl bg-zinc-900/50 border border-zinc-800 px-4 text-sm text-zinc-400 focus:text-white focus:border-primary focus:ring-1 focus:ring-primary/20 transition-all outline-none appearance-none"
+          value={householdFormData.country}
+          onChange={(e) =>
+            handleOnChange({ field: "country", inputValue: e.target.value })
+          }
+        >
+          <option value="" disabled>Country</option>
+          <option>United States</option>
+          <option>Mexico</option>
+          <option>Canada</option>
+        </select>
+        <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-zinc-600">
+          <Globe className="h-4 w-4" />
+        </div>
+      </div>
+
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <div className="relative group">
           <AnimatedInputLabel
             id="household-phone"
             type="tel"
@@ -87,21 +103,27 @@ export default function ContactForm({
             title="Please enter valid phone number"
             inputValue={householdFormData.phone ?? ""}
             fieldName="phone"
-            labelText="Phone"
+            labelText="Phone Number"
             required={(householdFormData?.phone?.length ?? 0) > 0}
             handleOnChange={handleOnChange}
           />
+          <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-zinc-700 group-focus-within:text-primary/50 transition-colors">
+            <Phone className="h-4 w-4" />
+          </div>
         </div>
-        <div className="w-1/2">
+        <div className="relative group">
           <AnimatedInputLabel
             id="household-email"
             type="email"
             inputValue={householdFormData.email ?? ""}
             fieldName="email"
-            labelText="Email"
+            labelText="Email Address"
             required={(householdFormData?.email?.length ?? 0) > 0}
             handleOnChange={handleOnChange}
           />
+          <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-zinc-700 group-focus-within:text-primary/50 transition-colors">
+            <Mail className="h-4 w-4" />
+          </div>
         </div>
       </div>
     </div>

@@ -1,11 +1,11 @@
 import { useEffect, useState } from "react";
-import { IoIosArrowDown, IoMdCheckmark } from "react-icons/io";
-import { FaMagnifyingGlass } from "react-icons/fa6";
+import { Search, Filter, Check, X, ChevronDown } from "lucide-react";
 
 import { type Dispatch, type SetStateAction } from "react";
 import { type Event, type Household } from "~/app/utils/shared-types";
 import { useOuterClick } from "../hooks";
 import { sharedStyles } from "~/app/utils/shared-styles";
+import { motion, AnimatePresence } from "framer-motion";
 
 type TSelectedRsvpFilter = {
   eventId: string;
@@ -46,20 +46,23 @@ export default function GuestSearchFilter({
     searchText: string,
     rsvpFilter: TSelectedRsvpFilter | null,
   ) => {
+    const term = searchText.toLowerCase();
     setFilteredHouseholds(() =>
       households.filter((household) =>
-        household.guests.some((guest) =>
-          !!rsvpFilter
-            ? (guest.firstName.includes(searchText) ||
-                guest.lastName.includes(searchText)) &&
-              guest.invitations?.some(
-                (inv) =>
-                  inv.eventId === rsvpFilter?.eventId &&
-                  inv.rsvp === rsvpFilter?.rsvpValue,
-              )
-            : guest.firstName.includes(searchText) ||
-              guest.lastName.includes(searchText),
-        ),
+        household.guests.some((guest) => {
+          const nameMatch = guest.firstName.toLowerCase().includes(term) ||
+                          guest.lastName.toLowerCase().includes(term);
+          
+          if (!rsvpFilter) return nameMatch;
+          
+          const rsvpMatch = guest.invitations?.some(
+            (inv) =>
+              inv.eventId === rsvpFilter.eventId &&
+              inv.rsvp === rsvpFilter.rsvpValue,
+          );
+          
+          return nameMatch && rsvpMatch;
+        }),
       ),
     );
   };
@@ -78,130 +81,96 @@ export default function GuestSearchFilter({
     filterHouseholds(searchInput, { eventId, rsvpValue });
   };
 
+  const clearFilters = () => {
+    setFilteredHouseholds(households);
+    setSearchInput("");
+    setSelectedRsvpFilter(null);
+  };
+
   return (
-    <div className="flex items-center">
-      <div className="flex">
+    <div className="flex flex-wrap items-center gap-4">
+      <div className="relative group">
+        <div className="absolute inset-y-0 left-4 flex items-center pointer-events-none">
+          <Search className="h-4 w-4 text-zinc-500 group-focus-within:text-primary transition-colors" />
+        </div>
         <input
           id="search-guests-input"
-          className="h-12 w-64 border-2 px-3 py-2"
-          placeholder="Find Guests"
+          className="h-12 w-64 md:w-80 rounded-2xl bg-zinc-900 border border-zinc-800 pl-11 pr-4 text-sm text-white placeholder:text-zinc-600 focus:border-primary focus:ring-1 focus:ring-primary/20 transition-all outline-none"
+          placeholder="Search by name..."
           value={searchInput}
           onChange={(e) => filterHouseholdsBySearch(e.target.value)}
-        ></input>
-        <div
-          className={`flex h-12 w-16 items-center justify-center bg-${sharedStyles.primaryColor}`}
-        >
-          <FaMagnifyingGlass className="text-white" size={20} />
-        </div>
+        />
       </div>
 
-      <div className="pl-7" ref={invitationFilterRef}>
-        <div className="relative h-12 w-48 border">
-          <div
-            onClick={() => setShowInvitationDropdown((prev) => !prev)}
-            className="flex cursor-pointer items-center justify-between p-3"
-          >
-            {selectedRsvpFilter === null ? (
-              <span>Filter By</span>
-            ) : (
-              <div className="flex items-center gap-1.5">
-                <span
-                  className={`h-1.5 w-1.5 rounded-full ${sharedStyles.getRSVPcolor(
-                    selectedRsvpFilter.rsvpValue,
-                  )}`}
-                />
-                <p>{selectedRsvpFilter.rsvpValue}</p>
-              </div>
-            )}
-            <IoIosArrowDown size={20} />
+      <div className="relative" ref={invitationFilterRef}>
+        <button
+          onClick={() => setShowInvitationDropdown((prev) => !prev)}
+          className={`h-12 flex items-center justify-between gap-4 px-5 rounded-2xl border transition-all active:scale-95 ${
+            selectedRsvpFilter 
+              ? "bg-primary/10 border-primary/30 text-primary" 
+              : "bg-zinc-900 border-zinc-800 text-zinc-400 hover:text-white"
+          }`}
+        >
+          <div className="flex items-center gap-2">
+            <Filter className="h-4 w-4" />
+            <span className="text-xs font-bold uppercase tracking-widest">
+              {selectedRsvpFilter ? selectedRsvpFilter.rsvpValue : "RSVP Status"}
+            </span>
           </div>
+          <ChevronDown className={`h-4 w-4 transition-transform ${showInvitationDropdown ? "rotate-180" : ""}`} />
+        </button>
+
+        <AnimatePresence>
           {showInvitationDropdown && (
-            <div className="absolute left-0 top-11 z-10 h-52 w-48 overflow-auto border bg-white p-3">
+            <motion.div
+              initial={{ opacity: 0, y: 10, scale: 0.95 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              exit={{ opacity: 0, y: 10, scale: 0.95 }}
+              className="absolute left-0 top-14 z-50 w-64 py-2 rounded-2xl bg-zinc-950 border border-zinc-800 shadow-2xl backdrop-blur-xl"
+            >
               {eventsToMap?.map(
                 (event) =>
                   event && (
-                    <div
-                      key={event.id}
-                      className="mb-4 flex flex-col border-b pb-2 font-light"
-                    >
-                      <h5 className="mb-2 text-xs font-medium">
-                        {event.name.toUpperCase()}
-                      </h5>
-                      {["Not Invited", "Invited", "Attending", "Declined"].map(
-                        (rsvp) => (
-                          <InvitationOption
+                    <div key={event.id} className="px-2 py-1">
+                      <div className="px-3 py-2">
+                        <span className="text-[10px] font-black uppercase tracking-[0.2em] text-zinc-600">
+                          {event.name}
+                        </span>
+                      </div>
+                      <div className="space-y-0.5">
+                        {["Invited", "Attending", "Declined", "Not Invited"].map((rsvp) => (
+                          <button
                             key={rsvp}
-                            rsvpValue={rsvp}
-                            eventId={event.id}
-                            filterHouseholdsByInvitation={
-                              filterHouseholdsByInvitation
-                            }
-                            setSelectedRsvpFilter={setSelectedRsvpFilter}
-                            isSelected={
-                              event.id === selectedRsvpFilter?.eventId &&
-                              rsvp === selectedRsvpFilter?.rsvpValue
-                            }
-                          />
-                        ),
-                      )}
+                            onClick={() => filterHouseholdsByInvitation({ eventId: event.id, rsvpValue: rsvp })}
+                            className="w-full flex items-center justify-between px-3 py-2 rounded-xl hover:bg-white/5 transition-colors group text-left"
+                          >
+                            <div className="flex items-center gap-2">
+                              <div className={`h-1.5 w-1.5 rounded-full ${sharedStyles.getRSVPcolor(rsvp)}`} />
+                              <span className="text-sm text-zinc-400 group-hover:text-white transition-colors">{rsvp}</span>
+                            </div>
+                            {event.id === selectedRsvpFilter?.eventId && rsvp === selectedRsvpFilter?.rsvpValue && (
+                              <Check className="h-4 w-4 text-primary" />
+                            )}
+                          </button>
+                        ))}
+                      </div>
                     </div>
                   ),
               )}
-            </div>
+            </motion.div>
           )}
-        </div>
+        </AnimatePresence>
       </div>
-      {!!selectedRsvpFilter && (
-        <span
-          className={`ml-3 cursor-pointer text-${sharedStyles.primaryColor}`}
-          onClick={() => {
-            setFilteredHouseholds(households);
-            setSearchInput("");
-            setSelectedRsvpFilter(null);
-          }}
+
+      {(!!selectedRsvpFilter || searchInput !== "") && (
+        <button
+          onClick={clearFilters}
+          className="flex items-center gap-2 px-4 py-2 text-xs font-bold text-zinc-500 hover:text-rose-500 transition-colors"
         >
-          Clear
-        </span>
+          <X className="h-4 w-4" />
+          <span>Clear Filters</span>
+        </button>
       )}
     </div>
   );
 }
-
-type InvitationOptionProps = {
-  rsvpValue: string;
-  eventId: string;
-  setSelectedRsvpFilter: Dispatch<SetStateAction<TSelectedRsvpFilter | null>>;
-  filterHouseholdsByInvitation: ({}: TSelectedRsvpFilter) => void;
-  isSelected: boolean;
-};
-
-const InvitationOption = ({
-  rsvpValue,
-  eventId,
-  setSelectedRsvpFilter,
-  filterHouseholdsByInvitation,
-  isSelected,
-}: InvitationOptionProps) => {
-  const handleChangeOption = (e: React.MouseEvent<HTMLDivElement>) => {
-    const target = e.target as HTMLElement;
-    setSelectedRsvpFilter({ eventId, rsvpValue: target.innerText });
-    filterHouseholdsByInvitation({ eventId, rsvpValue: target.innerText });
-  };
-
-  return (
-    <div
-      className="text-md flex cursor-pointer items-center justify-between p-1 pl-3 hover:bg-gray-100"
-      onClick={(e) => handleChangeOption(e)}
-    >
-      <div className="flex items-center gap-1.5">
-        <span
-          className={`h-1.5 w-1.5 rounded-full ${sharedStyles.getRSVPcolor(
-            rsvpValue,
-          )}`}
-        />
-        <p>{rsvpValue}</p>
-      </div>
-      {isSelected && <IoMdCheckmark size={20} />}
-    </div>
-  );
-};

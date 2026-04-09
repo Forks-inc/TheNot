@@ -32,7 +32,7 @@ export const websiteRouter = createTRPCRouter({
       if (existingWebsite) {
         throw new TRPCError({
           code: "CONFLICT",
-          message: "You already have a website created.",
+          message: "Ya tienes un sitio web creado.",
         });
       }
 
@@ -51,7 +51,7 @@ export const websiteRouter = createTRPCRouter({
 
       await ctx.db.event.create({
         data: {
-          name: "Wedding Day",
+          name: "Día de la Boda",
           userId,
           collectRsvp: true,
         },
@@ -81,11 +81,11 @@ export const websiteRouter = createTRPCRouter({
           generalQuestions: {
             create: [
               {
-                text: "Will you be bringing any children under the age of 10?",
+                text: "¿Traerán niños menores de 10 años?",
                 type: "Text",
               },
               {
-                text: "Send a note to the couple?",
+                text: "¿Desean enviar un mensaje a la pareja?",
                 type: "Text",
               },
             ],
@@ -218,7 +218,7 @@ export const websiteRouter = createTRPCRouter({
       });
 
       if (website === null) {
-        throw new TRPCClientError("This website does not exist.");
+        throw new TRPCClientError("Este sitio web no existe.");
       }
 
       const weddingUser: User | null = await ctx.db.user.findFirst({
@@ -230,7 +230,7 @@ export const websiteRouter = createTRPCRouter({
       if (!weddingUser) {
         throw new TRPCError({
           code: "INTERNAL_SERVER_ERROR",
-          message: "Failed to fetch wedding website data.",
+          message: "Error al obtener los datos de la boda.",
         });
       }
 
@@ -268,10 +268,10 @@ export const websiteRouter = createTRPCRouter({
         brideFirstName: weddingUser.brideFirstName,
         brideLastName: weddingUser.brideLastName,
         date: {
-          standardFormat: weddingDate?.toLocaleDateString("en-us", {
+          standardFormat: weddingDate?.toLocaleDateString("es-MX", {
             weekday: "long",
             year: "numeric",
-            month: "short",
+            month: "long",
             day: "numeric",
           }),
           numberFormat: formatDateNumber(weddingDate),

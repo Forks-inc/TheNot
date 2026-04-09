@@ -3,7 +3,8 @@ import { useToggleGuestForm } from "../contexts/guest-form-context";
 import { useToggleEventForm } from "../contexts/event-form-context";
 import { formatDateStandard } from "~/app/utils/helpers";
 import { sharedStyles } from "~/app/utils/shared-styles";
-import { BiPencil } from "react-icons/bi";
+import { Edit2, UserPlus, Download, Users, Home, Calendar } from "lucide-react";
+import { motion } from "framer-motion";
 
 import GuestSearchFilter from "./guest-search-filter";
 import GuestTable from "./guest-table";
@@ -49,89 +50,98 @@ export default function GuestsView({
   }, [households]);
 
   return (
-    <section>
-      {selectedEventId === "all" ? (
-        <DefaultTableHeader
-          households={filteredHouseholds}
-          totalGuests={totalGuests}
-          numEvents={events.length}
-        />
-      ) : (
-        <SelectedEventTableHeader
-          totalGuests={totalGuests}
-          households={filteredHouseholds}
-          selectedEvent={events.find((event) => event.id === selectedEventId)}
-          setPrefillEvent={setPrefillEvent}
-        />
-      )}
-      <div className="mb-8 flex justify-between">
+    <section className="space-y-10">
+      <motion.div 
+        initial={{ opacity: 0, y: -20 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="flex flex-col md:flex-row md:items-end justify-between gap-6"
+      >
+        {selectedEventId === "all" ? (
+          <DefaultTableHeader
+            households={filteredHouseholds}
+            totalGuests={totalGuests}
+            numEvents={events.length}
+          />
+        ) : (
+          <SelectedEventTableHeader
+            totalGuests={totalGuests}
+            households={filteredHouseholds}
+            selectedEvent={events.find((event) => event.id === selectedEventId)}
+            setPrefillEvent={setPrefillEvent}
+          />
+        )}
+
+        <div className="flex items-center gap-3">
+          <button className={sharedStyles.secondaryButton({ px: "px-6", py: "py-2.5" })}>
+            <div className="flex items-center gap-2 text-sm">
+              <Download className="h-4 w-4" />
+              <span>Export List</span>
+            </div>
+          </button>
+          <button
+            className={sharedStyles.primaryButton({ px: "px-6", py: "py-2.5" })}
+            onClick={() => {
+              setPrefillHousehold(undefined);
+              toggleGuestForm();
+            }}
+          >
+            <div className="flex items-center gap-2 text-sm">
+              <UserPlus className="h-4 w-4" />
+              <span>Add Guest</span>
+            </div>
+          </button>
+        </div>
+      </motion.div>
+
+      <div className="glass-card p-6 rounded-3xl space-y-8">
         <GuestSearchFilter
           setFilteredHouseholds={setFilteredHouseholds}
           households={households}
           events={events}
           selectedEventId={selectedEventId}
         />
-        <div>
-          <button className={sharedStyles.secondaryButton()}>
-            Download List
-          </button>
-          <button
-            className={`ml-5 ${sharedStyles.primaryButton()}`}
-            onClick={() => {
-              setPrefillHousehold(undefined);
-              toggleGuestForm();
-            }}
-          >
-            Add Guest
-          </button>
+        
+        <div className="overflow-hidden rounded-2xl border border-zinc-800">
+          <GuestTable
+            events={events}
+            households={filteredHouseholds}
+            selectedEventId={selectedEventId}
+            setPrefillHousehold={setPrefillHousehold}
+          />
         </div>
       </div>
-      <GuestTable
-        events={events}
-        households={filteredHouseholds}
-        selectedEventId={selectedEventId}
-        setPrefillHousehold={setPrefillHousehold}
-      />
     </section>
   );
 }
-
-type DefaultTableHeaderProps = {
-  households: Household[];
-  numEvents: number;
-  totalGuests: number;
-};
 
 const DefaultTableHeader = ({
   households,
   numEvents,
   totalGuests,
-}: DefaultTableHeaderProps) => {
+}: {
+  households: Household[];
+  numEvents: number;
+  totalGuests: number;
+}) => {
   return (
-    <div>
-      <div className="py-8">
-        <span className="text-sm">
-          TOTAL HOUSEHOLDS:{" "}
-          <span className="font-bold">{households.length}</span>
-        </span>
-        <span className={sharedStyles.verticalDivider}>|</span>
-        <span className="text-sm">
-          TOTAL GUESTS: <span className="font-bold">{totalGuests}</span>
-        </span>
-        <span className={sharedStyles.verticalDivider}>|</span>
-        <span className="text-sm">
-          TOTAL EVENTS: <span className="font-bold">{numEvents}</span>
-        </span>
+    <div className="space-y-2">
+      <h1 className="text-4xl font-black italic tracking-tighter text-white">Guest List</h1>
+      <div className="flex items-center gap-6 text-zinc-500">
+        <div className="flex items-center gap-2">
+          <Home className="h-4 w-4" />
+          <span className="text-sm font-bold"><span className="text-white">{households.length}</span> Households</span>
+        </div>
+        <div className="flex items-center gap-2">
+          <Users className="h-4 w-4" />
+          <span className="text-sm font-bold"><span className="text-white">{totalGuests}</span> Total Guests</span>
+        </div>
+        <div className="flex items-center gap-2">
+          <Calendar className="h-4 w-4" />
+          <span className="text-sm font-bold"><span className="text-white">{numEvents}</span> Events</span>
+        </div>
       </div>
     </div>
   );
-};
-
-type SelectedEventTableHeaderProps = {
-  totalGuests: number;
-  households: Household[];
-  selectedEvent: Event | undefined;
-  setPrefillEvent: Dispatch<SetStateAction<EventFormData | undefined>>;
 };
 
 const SelectedEventTableHeader = ({
@@ -139,85 +149,73 @@ const SelectedEventTableHeader = ({
   households,
   selectedEvent,
   setPrefillEvent,
-}: SelectedEventTableHeaderProps) => {
+}: {
+  totalGuests: number;
+  households: Household[];
+  selectedEvent: Event | undefined;
+  setPrefillEvent: Dispatch<SetStateAction<EventFormData | undefined>>;
+}) => {
   const toggleEventForm = useToggleEventForm();
+  
   const guestResponses = useMemo(() => {
-    const guestResponses = {
-      attending: 0,
-      declined: 0,
-      noResponse: 0,
-    };
-
+    const responses = { attending: 0, declined: 0, noResponse: 0 };
     households.forEach((household) => {
       household.guests.forEach((guest) => {
-        if (!guest.invitations) return;
-        const matchingInvitation = guest.invitations.find(
-          (inv) => inv.eventId === selectedEvent?.id,
-        );
-        if (!matchingInvitation) return;
-        switch (matchingInvitation.rsvp) {
-          case "Attending":
-            guestResponses.attending += 1;
-            break;
-          case "Declined":
-            guestResponses.declined += 1;
-            break;
-          default:
-            guestResponses.noResponse += 1;
-            break;
-        }
+        const inv = guest.invitations?.find(i => i.eventId === selectedEvent?.id);
+        if (!inv) return;
+        if (inv.rsvp === "Attending") responses.attending++;
+        else if (inv.rsvp === "Declined") responses.declined++;
+        else responses.noResponse++;
       });
     });
-
-    return guestResponses;
+    return responses;
   }, [households, selectedEvent]);
 
-  if (selectedEvent === undefined) return null;
-
-  const handleEditEvent = (event: Event) => {
-    const standardDate = formatDateStandard(event.date);
-
-    setPrefillEvent({
-      eventName: event.name,
-      date: standardDate ?? undefined,
-      startTime: event.startTime ?? undefined,
-      endTime: event.endTime ?? undefined,
-      venue: event.venue ?? undefined,
-      attire: event.attire ?? undefined,
-      description: event.description ?? undefined,
-      eventId: event.id,
-    });
-    toggleEventForm();
-  };
+  if (!selectedEvent) return null;
 
   return (
-    <div className="py-8">
-      <div className="mb-3 flex items-center gap-2">
-        <h2 className="text-xl font-bold">{selectedEvent.name}</h2>
-        <BiPencil
-          size={22}
-          color={sharedStyles.primaryColorHex}
-          className="cursor-pointer"
-          onClick={() => handleEditEvent(selectedEvent)}
-        />
+    <div className="space-y-4">
+      <div className="flex items-center gap-4">
+        <h1 className="text-4xl font-black italic tracking-tighter text-white">{selectedEvent.name}</h1>
+        <button 
+          onClick={() => {
+            setPrefillEvent({
+              eventName: selectedEvent.name,
+              date: formatDateStandard(selectedEvent.date) ?? undefined,
+              startTime: selectedEvent.startTime ?? undefined,
+              endTime: selectedEvent.endTime ?? undefined,
+              venue: selectedEvent.venue ?? undefined,
+              attire: selectedEvent.attire ?? undefined,
+              description: selectedEvent.description ?? undefined,
+              eventId: selectedEvent.id,
+            });
+            toggleEventForm();
+          }}
+          className="p-2 rounded-xl bg-zinc-900 border border-zinc-800 text-zinc-400 hover:text-primary transition-colors hover:border-primary/30"
+        >
+          <Edit2 className="h-4 w-4" />
+        </button>
       </div>
-      <div className="flex gap-4">
-        <span className="text-md font-semibold">
-          {totalGuests} Guests Invited:
-        </span>
-        <div className="text-md flex items-center gap-1.5">
-          <span className={`h-1.5 w-1.5 rounded-full bg-green-400`} />
-          <div className="font-medium">{guestResponses.attending}</div>
-          Attending
+
+      <div className="flex items-center gap-8">
+        <div className="flex flex-col">
+          <span className="text-[10px] uppercase font-black tracking-widest text-zinc-500 mb-1">Total Invited</span>
+          <span className="text-xl font-bold text-white">{totalGuests}</span>
         </div>
-        <div className="text-md flex items-center gap-1.5">
-          <span className={`h-1.5 w-1.5 rounded-full bg-red-400`} />
-          <span className="font-medium">{guestResponses.declined}</span>
-          Declined
-        </div>
-        <div className="text-md flex items-center gap-1.5">
-          <span className={`h-1.5 w-1.5 rounded-full bg-gray-200`} />
-          <span className="">{guestResponses.noResponse}</span>No Response
+        <div className="h-8 w-px bg-zinc-800" />
+        <div className="flex items-center gap-6">
+          <div className="flex flex-col">
+            <span className="text-[10px] uppercase font-black tracking-widest text-emerald-500/80 mb-1">Attending</span>
+            <span className="text-xl font-bold text-emerald-400">{guestResponses.attending}</span>
+          </div>
+          <div className="flex flex-col">
+            <span className="text-[10px] uppercase font-black tracking-widest text-rose-500/80 mb-1">Declined</span>
+            <span className="text-xl font-bold text-rose-400">{guestResponses.declined}</span>
+          </div>
+          <div className="flex flex-col">
+            <span className="text-[10px] uppercase font-black tracking-widest text-zinc-600 mb-1">No Response</span>
+            <span className="text-xl font-bold text-zinc-500">{guestResponses.noResponse}</span>
+          </div>
         </div>
       </div>
     </div>
