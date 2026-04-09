@@ -5,6 +5,8 @@ import {
   type NextAuthOptions,
 } from "next-auth";
 import GithubProvider from "next-auth/providers/github";
+import CredentialsProvider from "next-auth/providers/credentials";
+import bcrypt from "bcryptjs";
 import { env } from "~/env";
 import { db } from "~/server/db";
 
@@ -36,19 +38,50 @@ declare module "next-auth" {
  */
 export const authOptions: NextAuthOptions = {
   callbacks: {
-    session: ({ session, user }) => ({
+    session: ({ session, user, token }) => ({
       ...session,
       user: {
         ...session.user,
-        id: user.id,
+        id: user?.id ?? token?.sub,
       },
     }),
   },
   adapter: PrismaAdapter(db),
+  session: {
+    strategy: "jwt",
+  },
   providers: [
     GithubProvider({
       clientId: env.GITHUB_ID ?? "GITHUB_ID",
       clientSecret: env.GITHUB_SECRET ?? "GITHUB_SECRET",
+    }),
+    CredentialsProvider({
+      name: "Email",
+      credentials: {
+        email: { label: "Email", type: "email" },
+        password: { label: "Password", type: "password" },
+      },
+      async authorize(credentials) {
+        if (!credentials?.email || !credentials?.password) {
+          throw new Error("Missing email or password");
+        }
+
+        const user = await db.user.findUnique({
+          where: { email: credentials.email },
+        });
+
+        if (!user || !user.password) {
+          throw new Error("User not found or no password set");
+        }
+
+        const isValid = await bcrypt.compare(credentials.password, user.password);
+
+        if (!isValid) {
+          throw new Error("Invalid password");
+        }
+
+        return user;
+      },
     }),
     /**
      * ...add more providers here.

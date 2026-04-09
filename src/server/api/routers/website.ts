@@ -24,7 +24,18 @@ export const websiteRouter = createTRPCRouter({
     .mutation(async ({ input, ctx }) => {
       const userId = ctx.session.user.id;
 
-      // TODO: needa check for dupes
+      // Check if website already exists
+      const existingWebsite = await ctx.db.website.findUnique({
+        where: { userId },
+      });
+
+      if (existingWebsite) {
+        throw new TRPCError({
+          code: "CONFLICT",
+          message: "You already have a website created.",
+        });
+      }
+
       const {
         firstName,
         lastName,
@@ -46,9 +57,9 @@ export const websiteRouter = createTRPCRouter({
         },
       });
 
-      await ctx.db.user.create({
+      await ctx.db.user.update({
+        where: { id: userId },
         data: {
-          id: userId,
           websiteUrl: url,
           email,
           groomFirstName: firstName,
