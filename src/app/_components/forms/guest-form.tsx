@@ -4,7 +4,7 @@ import { useState } from "react";
 import { useToggleGuestForm } from "../contexts/guest-form-context";
 import { useGuestFormActions } from "../hooks/forms/useGuestFormActions";
 import { sharedStyles } from "../../utils/shared-styles";
-import { X, Plus, UserPlus, Info } from "lucide-react";
+import { X, Plus, UserPlus, Info, Users, Globe, Phone, Mail } from "lucide-react";
 import { GuestNameForm } from "./guest/guest-names";
 import SidePaneWrapper from "./wrapper";
 import DeleteConfirmation from "./delete-confirmation";
@@ -12,7 +12,7 @@ import ContactForm from "./guest/contact-form";
 import GiftSection from "./guest/gift-section";
 import AddFormButtons from "./guest/add-buttons";
 import EditFormButtons from "./guest/edit-buttons";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 
 import { type SyntheticEvent } from "react";
 import {
@@ -89,12 +89,12 @@ export default function GuestForm({ events, prefillFormData }: GuestFormProps) {
   } = useGuestFormActions(closeForm, resetForm);
 
   const getTitle = () => {
-    if (!isEditMode || !prefillFormData) return "New Party Invitation";
+    if (!isEditMode || !prefillFormData) return "Nueva Invitación";
     const primaryContact = prefillFormData.guestParty.find(
       (guest) => guest.isPrimaryContact,
     );
     const numGuests = prefillFormData.guestParty.length;
-    const primaryContactName = primaryContact ? `${primaryContact.firstName} ${primaryContact.lastName}` : "Unnamed Party";
+    const primaryContactName = primaryContact ? `${primaryContact.firstName} ${primaryContact.lastName}` : "Invitación sin nombre";
 
     return numGuests > 1
       ? `${primaryContactName} + ${numGuests - 1}`
@@ -139,7 +139,7 @@ export default function GuestForm({ events, prefillFormData }: GuestFormProps) {
     return (
       <DeleteConfirmation
         isProcessing={isDeletingHousehold}
-        disclaimerText="Are you sure you want to delete this group and all its invitations? This action cannot be undone."
+        disclaimerText="¿Estás seguro de que deseas eliminar este grupo y todas sus invitaciones? Esta acción no se puede deshacer."
         noHandler={() => setShowDeleteConfirmation(false)}
         yesHandler={() => deleteHousehold({ householdId: householdFormData.householdId })}
       />
@@ -149,39 +149,44 @@ export default function GuestForm({ events, prefillFormData }: GuestFormProps) {
   return (
     <SidePaneWrapper>
       <form
-        className="flex flex-col min-h-screen pb-32"
+        className="h-full flex flex-col bg-zinc-950"
         onSubmit={(e) => handleOnSubmit(e)}
       >
-        <div className="sticky top-0 z-20 flex items-center justify-between px-8 py-6 bg-zinc-950/80 backdrop-blur-xl border-b border-zinc-800">
+        <div className="flex items-center justify-between px-8 py-10 border-b border-white/5">
           <div className="space-y-1">
-            <span className="text-[10px] font-black uppercase tracking-widest text-primary">Guest Management</span>
-            <h1 className="text-xl md:text-2xl font-black italic text-white tracking-tighter">{getTitle()}</h1>
+            <p className="text-[10px] font-black uppercase tracking-[0.4em] text-zinc-600">Gestión de Invitados</p>
+            <h1 className="text-3xl font-black italic text-white tracking-tighter antialiased truncate max-w-[300px]">
+              {getTitle()}
+            </h1>
           </div>
           <button 
             type="button"
             onClick={() => toggleGuestForm()}
-            className="p-2.5 rounded-full bg-zinc-900 text-zinc-500 hover:text-white transition-all active:scale-90"
+            className="p-3 rounded-2xl bg-zinc-900 border border-white/5 text-zinc-500 hover:text-white hover:border-white/10 transition-all"
           >
             <X className="h-5 w-5" />
           </button>
         </div>
 
-        <div className="flex-1 px-8 py-8 space-y-12">
+        <div className="flex-1 overflow-y-auto custom-scrollbar p-8 space-y-12 pb-40">
           {/* Party Members Section */}
           <section className="space-y-6">
             <div className="flex items-center justify-between">
-              <h2 className="text-sm font-black uppercase tracking-[0.2em] text-zinc-500">Party Members</h2>
+              <div className="flex items-center gap-3">
+                <Users className="h-4 w-4 text-amber-200" />
+                <h2 className="text-[10px] font-black uppercase tracking-[0.3em] text-zinc-500">Integrantes del Grupo</h2>
+              </div>
               <button
                 type="button"
                 onClick={() => handleAddGuestToParty()}
-                className="flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-primary hover:brightness-110 transition-all"
+                className="flex items-center gap-2 px-4 py-2 rounded-xl bg-amber-500/10 text-[10px] font-black uppercase tracking-widest text-amber-200 hover:bg-amber-500/20 transition-all border border-amber-500/20"
               >
-                <UserPlus className="h-3 w-3" />
-                Add Person
+                <Plus className="h-3 w-3" />
+                Agregar Persona
               </button>
             </div>
             
-            <div className="space-y-4">
+            <div className="space-y-6">
               {householdFormData?.guestParty.map((guest, i) => (
                 <GuestNameForm
                   key={i}
@@ -197,8 +202,11 @@ export default function GuestForm({ events, prefillFormData }: GuestFormProps) {
 
           {/* Contact Information Section */}
           <section className="space-y-6">
-            <h2 className="text-sm font-black uppercase tracking-[0.2em] text-zinc-500">Logistics & Contact</h2>
-            <div className="glass-card p-6 rounded-3xl bg-white/[0.02]">
+            <div className="flex items-center gap-3">
+              <Globe className="h-4 w-4 text-amber-200" />
+              <h2 className="text-[10px] font-black uppercase tracking-[0.3em] text-zinc-500">Logística y Contacto</h2>
+            </div>
+            <div className="glass-card p-8 rounded-[2.5rem] bg-white/[0.02] border border-white/5">
               <ContactForm
                 householdFormData={householdFormData}
                 handleOnChange={handleOnChange}
@@ -208,26 +216,32 @@ export default function GuestForm({ events, prefillFormData }: GuestFormProps) {
 
           {/* Notes Section */}
           <section className="space-y-6">
-            <div className="flex items-center gap-2">
-              <h2 className="text-sm font-black uppercase tracking-[0.2em] text-zinc-500">Private Notes</h2>
-              <div className="group relative">
-                <Info className="h-3 w-3 text-zinc-600" />
-                <span className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-48 p-2 rounded-lg bg-zinc-900 border border-zinc-800 text-[10px] text-zinc-400 invisible group-hover:visible">
-                  Include dietary requirements, allergies, or anything else helpful for planning.
-                </span>
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <Info className="h-4 w-4 text-amber-200" />
+                <h2 className="text-[10px] font-black uppercase tracking-[0.3em] text-zinc-500">Notas Privadas</h2>
               </div>
             </div>
-            <textarea
-              placeholder="e.g. Nut allergies, needs a high chair, staying at the venue..."
-              value={householdFormData.notes}
-              onChange={(e) => handleOnChange({ field: "notes", inputValue: e.target.value })}
-              className="w-full h-32 rounded-2xl bg-zinc-900/50 border border-zinc-800 p-4 text-sm text-white focus:border-primary focus:ring-1 focus:ring-primary/20 transition-all outline-none resize-none"
-            />
+            <div className="relative group">
+              <textarea
+                placeholder="Ej: Alergias a nueces, necesita silla alta, se hospeda en el hotel..."
+                value={householdFormData.notes ?? ""}
+                onChange={(e) => handleOnChange({ field: "notes", inputValue: e.target.value })}
+                className="w-full h-32 rounded-[2.5rem] bg-zinc-950/50 border border-white/5 p-6 text-sm text-white focus:border-amber-500/50 focus:ring-1 focus:ring-amber-500/20 transition-all outline-none resize-none backdrop-blur-md"
+              />
+              <div className="absolute right-6 bottom-6 flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-zinc-600">
+                <Info className="h-3 w-3" />
+                <span>Solo visible para ti</span>
+              </div>
+            </div>
           </section>
 
           {isEditMode && (
             <section className="space-y-6">
-              <h2 className="text-sm font-black uppercase tracking-[0.2em] text-zinc-500">Gifts & Gratitude</h2>
+              <div className="flex items-center gap-3">
+                <Plus className="h-4 w-4 text-rose-300" />
+                <h2 className="text-[10px] font-black uppercase tracking-[0.3em] text-zinc-500">Regalos y Agradecimiento</h2>
+              </div>
               <GiftSection
                 setHouseholdFormData={setHouseholdFormData}
                 householdFormData={householdFormData}
@@ -236,7 +250,7 @@ export default function GuestForm({ events, prefillFormData }: GuestFormProps) {
           )}
         </div>
 
-        <div className="sticky bottom-0 z-20 px-8 py-6 bg-zinc-950/80 backdrop-blur-xl border-t border-zinc-800">
+        <div className="absolute bottom-0 inset-x-0 p-8 pt-12 bg-gradient-to-t from-zinc-950 via-zinc-950 to-transparent border-t border-white/5">
           {isEditMode ? (
             <EditFormButtons
               isUpdatingHousehold={isUpdatingHousehold}

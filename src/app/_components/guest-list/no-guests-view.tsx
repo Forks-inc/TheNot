@@ -29,9 +29,9 @@ export default function NoGuestsView({
           <div className="h-20 w-20 bg-primary/10 rounded-3xl flex items-center justify-center mx-auto mb-6 transition-transform hover:scale-110">
             <UserPlus className="h-10 w-10 text-primary" />
           </div>
-          <h2 className="text-3xl font-black italic tracking-tighter text-white">Your Guest List is Empty</h2>
+          <h2 className="text-3xl font-black italic tracking-tighter text-white">Tu lista de invitados está vacía</h2>
           <p className="text-zinc-500 text-sm leading-relaxed max-w-xs mx-auto">
-            Start adding guests to your special day. You can import from other events or create new invitations manually.
+            Comienza a agregar invitados para tu gran día. Puedes importar desde otros eventos o crear invitaciones manualmente.
           </p>
         </div>
 
@@ -39,7 +39,7 @@ export default function NoGuestsView({
           <button className={sharedStyles.secondaryButton()}>
             <div className="flex items-center gap-2">
               <Download className="h-4 w-4" />
-              <span>Import Guests</span>
+              <span>Importar Invitados</span>
             </div>
           </button>
           <button
@@ -51,14 +51,14 @@ export default function NoGuestsView({
           >
             <div className="flex items-center gap-2">
               <UserPlus className="h-4 w-4" />
-              <span>Add First Guest</span>
+              <span>Agregar primer invitado</span>
             </div>
           </button>
         </div>
       </motion.div>
 
       <div className="mt-20 w-full max-w-5xl opacity-30 grayscale pointer-events-none">
-        <p className="text-center text-[10px] font-black uppercase tracking-[0.3em] text-zinc-600 mb-8">Sample View</p>
+        <p className="text-center text-[10px] font-black uppercase tracking-[0.3em] text-zinc-600 mb-8">Vista de Ejemplo</p>
         <ExampleTable />
       </div>
     </section>

@@ -16,7 +16,7 @@ export default function SidePaneWrapper({ children }: SidePaneWrapperProps) {
         animate={{ opacity: 1 }}
         exit={{ opacity: 0 }}
         className="absolute inset-0 bg-black/60 backdrop-blur-sm transition-all"
-        onClick={() => {}} // Optional: handle close on backdrop click if needed
+        onClick={() => undefined} // Optional: handle close on backdrop click if needed
       />
       
       <motion.div

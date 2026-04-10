@@ -119,6 +119,6 @@ export default function QuestionShortAnswer({
           )}
         </div>
       </div>
-    </div>
+    </motion.div>
   );
 }

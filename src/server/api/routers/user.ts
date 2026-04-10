@@ -26,7 +26,7 @@ export const userRouter = createTRPCRouter({
       });
 
       if (exists) {
-        throw new Error("User already exists");
+        throw new Error("El usuario ya existe.");
       }
 
       const hashedPassword = await bcrypt.hash(input.password, 10);

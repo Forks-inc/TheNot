@@ -1,17 +1,20 @@
 const minPageWidth = "min-w-full";
 const desktopPaddingSides = "px-6 md:px-20 lg:px-32";
 const desktopPaddingSidesGuestList = "px-6 md:px-12";
-const verticalDivider = "px-3 text-zinc-700";
-const primaryColor = "primary";
-const primaryColorHex = "hsl(var(--primary))";
-const sidebarFormWidth = "w-full lg:w-[450px]";
+const verticalDivider = "px-3 text-zinc-800";
+const primaryColor = "amber-200";
+const primaryColorHex = "rgba(253, 230, 138, 1)";
+const sidebarFormWidth = "w-full lg:w-[500px]";
 const ellipsisOverflow = "overflow-hidden overflow-ellipsis whitespace-nowrap";
+
 const animatedInput =
-  "peer block w-full rounded-xl border border-zinc-800 bg-zinc-950/50 px-4 pb-3 pt-5 text-sm text-white focus:border-primary focus:outline-none focus:ring-0 transition-all backdrop-blur-sm";
+  "peer block w-full rounded-2xl border border-white/5 bg-zinc-950/50 px-4 pb-3 pt-6 text-sm text-white focus:border-amber-500/50 focus:outline-none focus:ring-0 transition-all backdrop-blur-md";
+
 const animatedLabel =
-  "absolute left-4 top-2 z-10 origin-[0] -translate-y-4 scale-75 transform text-sm text-zinc-500 duration-300 peer-placeholder-shown:top-1/2 peer-placeholder-shown:-translate-y-1/2 peer-placeholder-shown:scale-100 peer-focus:top-2 peer-focus:-translate-y-4 peer-focus:scale-75 peer-focus:text-primary";
+  "absolute left-4 top-2 z-10 origin-[0] -translate-y-4 scale-75 transform text-[10px] font-black uppercase tracking-widest text-zinc-500 duration-300 peer-placeholder-shown:top-1/2 peer-placeholder-shown:-translate-y-1/2 peer-placeholder-shown:scale-100 peer-focus:top-2 peer-focus:-translate-y-4 peer-focus:scale-75 peer-focus:text-amber-200";
+
 const requiredAsterisk =
-  'after:ml-0.5 after:text-primary after:content-["*"]';
+  'after:ml-1 after:text-amber-500 after:content-["*"]';
 
 type ButtonOptions = {
   px?: string;
@@ -20,38 +23,39 @@ type ButtonOptions = {
 };
 
 const primaryButton = (options?: ButtonOptions) => {
-  options = { px: "px-10", py: "py-3", isLoading: false, ...options };
+  options = { px: "px-10", py: "py-4", isLoading: false, ...options };
   const { px, py, isLoading } = options;
-  const hover = isLoading ? "" : "hover:brightness-110 hover:shadow-lg hover:shadow-primary/20";
-  const bg = isLoading ? "bg-primary/50" : "bg-primary";
+  const hover = isLoading ? "" : "hover:bg-amber-100 hover:shadow-2xl hover:shadow-amber-500/10";
+  const bg = isLoading ? "bg-zinc-800" : "bg-white";
+  const text = isLoading ? "text-zinc-600" : "text-black";
   const cursor = isLoading ? "cursor-not-allowed" : "cursor-pointer";
 
-  return `rounded-full font-bold text-white transition-all transform active:scale-95 ${px} ${py} ${hover} ${bg} ${cursor}`;
+  return `rounded-full font-black uppercase tracking-widest text-[10px] transition-all transform active:scale-95 ${px} ${py} ${hover} ${bg} ${text} ${cursor}`;
 };
 
 const secondaryButton = (options?: ButtonOptions) => {
-  options = { px: "px-10", py: "py-3", isLoading: false, ...options };
+  options = { px: "px-10", py: "py-4", isLoading: false, ...options };
   const { px, py, isLoading } = options;
-  const hover = isLoading ? "" : "hover:bg-white/5 hover:border-white/20";
+  const hover = isLoading ? "" : "hover:bg-white/5 hover:border-white/10";
   const cursor = isLoading ? "cursor-not-allowed" : "cursor-pointer";
-  const border = isLoading ? "border-zinc-800" : "border-zinc-700";
-  const text = isLoading ? "text-zinc-600" : "text-white";
+  const border = isLoading ? "border-zinc-900" : "border-white/5";
+  const text = isLoading ? "text-zinc-700" : "text-zinc-400";
 
-  return `rounded-full border font-bold transition-all transform active:scale-95 ${px} ${py} ${hover} ${cursor} ${border} ${text}`;
+  return `rounded-full border font-black uppercase tracking-widest text-[10px] transition-all transform active:scale-95 ${px} ${py} ${hover} ${cursor} ${border} ${text}`;
 };
 
 const getRSVPcolor = (rsvp: string | null | undefined) => {
   switch (rsvp) {
     case "Not Invited":
-      return "bg-zinc-700";
+      return "bg-zinc-900";
     case "Invited":
-      return "bg-zinc-500";
+      return "bg-zinc-800";
     case "Attending":
-      return "bg-emerald-500 shadow-[0_0_15px_rgba(16,185,129,0.3)]";
+      return "bg-violet-400 shadow-[0_0_15px_rgba(167,139,250,0.3)]";
     case "Declined":
       return "bg-rose-500 shadow-[0_0_15px_rgba(244,63,94,0.3)]";
     default:
-      return "bg-zinc-600";
+      return "bg-zinc-800";
   }
 };
 

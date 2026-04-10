@@ -29,7 +29,7 @@ export default function EventsTabs({
               : "bg-zinc-900 text-zinc-500 hover:text-white border border-zinc-800"
           }`}
         >
-          All Guests
+          Todos los invitados
         </Link>
         
         {events?.map((event) => (
@@ -43,7 +43,7 @@ export default function EventsTabs({
                 : "bg-zinc-900 text-zinc-500 hover:text-white border border-zinc-800"
             }`}
           >
-            {event.name}
+            {event.name === "Wedding" ? "Boda" : event.name}
           </Link>
         ))}
       </div>
@@ -53,7 +53,7 @@ export default function EventsTabs({
         onClick={() => toggleEventForm()}
       >
         <Plus className="h-4 w-4 transition-transform group-hover:rotate-90" />
-        <span>New Event</span>
+        <span>Nuevo Evento</span>
       </button>
     </div>
   );

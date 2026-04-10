@@ -44,7 +44,7 @@ export default function MainRsvpForm({
   const submitRsvpForm = api.website.submitRsvpForm.useMutation({
     onSuccess: () => setCurrentStep((prev) => prev + 1),
     onError: (err) => {
-      window.alert(err?.message ?? "Failed to submit RSVP. Please try again.");
+      window.alert(err?.message ?? "Error al enviar el RSVP. Por favor, inténtalo de nuevo.");
     },
   });
 
@@ -93,7 +93,7 @@ export default function MainRsvpForm({
   }, [weddingData, rsvpFormData.selectedHousehold]);
 
   const handleClose = () => {
-    if (currentStep <= 1 || window.confirm("Are you sure? Your RSVP has not been sent.")) {
+    if (currentStep <= 1 || window.confirm("¿Estás seguro? Tu RSVP aún no ha sido enviado.")) {
       window.location.href = basePath;
     }
   };
@@ -112,12 +112,12 @@ export default function MainRsvpForm({
               <X className="h-5 w-5" />
             </button>
             <div className="h-4 w-px bg-zinc-800" />
-            <span className="text-[10px] font-black uppercase tracking-[0.3em] text-zinc-400">RSVP Flow</span>
+            <span className="text-[10px] font-black uppercase tracking-[0.3em] text-zinc-400">Proceso de RSVP</span>
           </div>
           
           <div className="flex flex-col items-end gap-1">
             <span className="text-[10px] font-black uppercase tracking-widest text-primary">
-              Step {currentStep} of {numSteps.current - 1}
+              Paso {currentStep} de {numSteps.current - 1}
             </span>
             <div className="w-32 h-1 bg-zinc-900 rounded-full overflow-hidden">
               <motion.div 

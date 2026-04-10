@@ -75,7 +75,7 @@ export default function GuestsView({
           <button className={sharedStyles.secondaryButton({ px: "px-6", py: "py-2.5" })}>
             <div className="flex items-center gap-2 text-sm">
               <Download className="h-4 w-4" />
-              <span>Export List</span>
+              <span>Exportar Lista</span>
             </div>
           </button>
           <button
@@ -87,7 +87,7 @@ export default function GuestsView({
           >
             <div className="flex items-center gap-2 text-sm">
               <UserPlus className="h-4 w-4" />
-              <span>Add Guest</span>
+              <span>Agregar Invitado</span>
             </div>
           </button>
         </div>
@@ -125,19 +125,19 @@ const DefaultTableHeader = ({
 }) => {
   return (
     <div className="space-y-2">
-      <h1 className="text-4xl font-black italic tracking-tighter text-white">Guest List</h1>
+      <h1 className="text-4xl font-black italic tracking-tighter text-white">Lista de Invitados</h1>
       <div className="flex items-center gap-6 text-zinc-500">
         <div className="flex items-center gap-2">
           <Home className="h-4 w-4" />
-          <span className="text-sm font-bold"><span className="text-white">{households.length}</span> Households</span>
+          <span className="text-sm font-bold"><span className="text-white">{households.length}</span> Familias</span>
         </div>
         <div className="flex items-center gap-2">
           <Users className="h-4 w-4" />
-          <span className="text-sm font-bold"><span className="text-white">{totalGuests}</span> Total Guests</span>
+          <span className="text-sm font-bold"><span className="text-white">{totalGuests}</span> Invitados en Total</span>
         </div>
         <div className="flex items-center gap-2">
           <Calendar className="h-4 w-4" />
-          <span className="text-sm font-bold"><span className="text-white">{numEvents}</span> Events</span>
+          <span className="text-sm font-bold"><span className="text-white">{numEvents}</span> Eventos</span>
         </div>
       </div>
     </div>
@@ -176,7 +176,9 @@ const SelectedEventTableHeader = ({
   return (
     <div className="space-y-4">
       <div className="flex items-center gap-4">
-        <h1 className="text-4xl font-black italic tracking-tighter text-white">{selectedEvent.name}</h1>
+        <h1 className="text-4xl font-black italic tracking-tighter text-white">
+          {selectedEvent.name === "Wedding" ? "Boda" : selectedEvent.name}
+        </h1>
         <button 
           onClick={() => {
             setPrefillEvent({
@@ -199,21 +201,21 @@ const SelectedEventTableHeader = ({
 
       <div className="flex items-center gap-8">
         <div className="flex flex-col">
-          <span className="text-[10px] uppercase font-black tracking-widest text-zinc-500 mb-1">Total Invited</span>
+          <span className="text-[10px] uppercase font-black tracking-widest text-zinc-500 mb-1">Total Invitados</span>
           <span className="text-xl font-bold text-white">{totalGuests}</span>
         </div>
         <div className="h-8 w-px bg-zinc-800" />
         <div className="flex items-center gap-6">
           <div className="flex flex-col">
-            <span className="text-[10px] uppercase font-black tracking-widest text-emerald-500/80 mb-1">Attending</span>
+            <span className="text-[10px] uppercase font-black tracking-widest text-emerald-500/80 mb-1">Asistirán</span>
             <span className="text-xl font-bold text-emerald-400">{guestResponses.attending}</span>
           </div>
           <div className="flex flex-col">
-            <span className="text-[10px] uppercase font-black tracking-widest text-rose-500/80 mb-1">Declined</span>
+            <span className="text-[10px] uppercase font-black tracking-widest text-rose-500/80 mb-1">Declinaron</span>
             <span className="text-xl font-bold text-rose-400">{guestResponses.declined}</span>
           </div>
           <div className="flex flex-col">
-            <span className="text-[10px] uppercase font-black tracking-widest text-zinc-600 mb-1">No Response</span>
+            <span className="text-[10px] uppercase font-black tracking-widest text-zinc-600 mb-1">Sin Respuesta</span>
             <span className="text-xl font-bold text-zinc-500">{guestResponses.noResponse}</span>
           </div>
         </div>

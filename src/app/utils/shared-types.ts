@@ -82,10 +82,10 @@ type WeddingDate = {
 };
 
 type WeddingData = {
-  groomFirstName: string;
-  groomLastName: string;
-  brideFirstName: string;
-  brideLastName: string;
+  groomFirstName: string | null;
+  groomLastName: string | null;
+  brideFirstName: string | null;
+  brideLastName: string | null;
   daysRemaining: number;
   date: WeddingDate;
 };
@@ -143,10 +143,10 @@ type Website = {
 };
 
 type WeddingPageData = {
-  groomFirstName: string;
-  groomLastName: string;
-  brideFirstName: string;
-  brideLastName: string;
+  groomFirstName: string | null;
+  groomLastName: string | null;
+  brideFirstName: string | null;
+  brideLastName: string | null;
   date: {
     standardFormat: string | undefined;
     numberFormat: string | undefined;

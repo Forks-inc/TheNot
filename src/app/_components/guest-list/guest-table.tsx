@@ -69,27 +69,27 @@ export default function GuestTable({
             </th>
             <th onClick={() => toggleSort("name")} className="px-6 py-5 text-left cursor-pointer group">
               <div className="flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-zinc-500 group-hover:text-white transition-colors">
-                Name <ArrowUpDown className="h-3 w-3" />
+                Nombre <ArrowUpDown className="h-3 w-3" />
               </div>
             </th>
             <th onClick={() => toggleSort("party")} className="px-6 py-5 text-left cursor-pointer group">
               <div className="flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-zinc-500 group-hover:text-white transition-colors">
-                Party <ArrowUpDown className="h-3 w-3" />
+                Grupo <ArrowUpDown className="h-3 w-3" />
               </div>
             </th>
-            <th className="px-6 py-5 text-left text-[10px] font-black uppercase tracking-widest text-zinc-500">Contact</th>
+            <th className="px-6 py-5 text-left text-[10px] font-black uppercase tracking-widest text-zinc-500">Contacto</th>
             
             {selectedEventId === "all" ? (
               events.map(event => (
                 <th key={event.id} className="px-6 py-5 text-left text-[10px] font-black uppercase tracking-widest text-zinc-500">
-                  {event.name}
+                  {event.name === "Wedding" ? "Boda" : event.name}
                 </th>
               ))
             ) : (
               <th className="px-6 py-5 text-left text-[10px] font-black uppercase tracking-widest text-zinc-500">RSVP</th>
             )}
             
-            <th className="px-6 py-5 text-left text-[10px] font-black uppercase tracking-widest text-zinc-500 text-right">Actions</th>
+            <th className="px-6 py-5 text-left text-[10px] font-black uppercase tracking-widest text-zinc-500 text-right">Acciones</th>
           </tr>
         </thead>
         <tbody className="divide-y divide-zinc-900">
@@ -122,7 +122,6 @@ export default function GuestTable({
                       invites: g.invitations?.reduce((acc, inv) => ({ ...acc, [inv.eventId]: inv.rsvp ?? "" }), {}) ?? {}
                     }))
                   });
-                  // toggle logic handled by parent via prefill trigger or similar
                 }}
               >
                 <td className="px-6 py-4" onClick={e => e.stopPropagation()}>
@@ -133,7 +132,7 @@ export default function GuestTable({
                     {household.guests.map((guest, i) => (
                       <span key={guest.id} className={`text-sm font-semibold ${i === 0 ? "text-white" : "text-zinc-500 text-xs"}`}>
                         {guest.firstName} {guest.lastName}
-                        {guest.isPrimaryContact && <span className="ml-2 text-[8px] px-1.5 py-0.5 rounded-full bg-primary/20 text-primary uppercase font-black">Primary</span>}
+                        {guest.isPrimaryContact && <span className="ml-2 text-[8px] px-1.5 py-0.5 rounded-full bg-primary/20 text-primary uppercase font-black">Principal</span>}
                       </span>
                     ))}
                   </div>
@@ -141,7 +140,7 @@ export default function GuestTable({
                 <td className="px-6 py-4">
                   <div className="inline-flex items-baseline gap-1 px-3 py-1 rounded-full bg-zinc-900 border border-zinc-800">
                     <span className="text-sm font-black text-white italic">{household.guests.length}</span>
-                    <span className="text-[10px] text-zinc-500 font-bold uppercase">Guests</span>
+                    <span className="text-[10px] text-zinc-500 font-bold uppercase">Personas</span>
                   </div>
                 </td>
                 <td className="px-6 py-4">
@@ -189,17 +188,24 @@ export default function GuestTable({
 }
 
 function RSVPBadge({ rsvp }: { rsvp?: string | null }) {
-  const styles = {
+  const translations: Record<string, string> = {
+    "Attending": "Asistirá",
+    "Declined": "Declinó",
+    "Invited": "Invitado",
+    "Not Invited": "No invitado",
+  };
+
+  const styles = ({
     "Attending": "bg-emerald-500/10 text-emerald-400 border-emerald-500/20",
     "Declined": "bg-rose-500/10 text-rose-400 border-rose-500/20",
     "Invited": "bg-amber-500/10 text-amber-400 border-amber-500/20",
     "Not Invited": "bg-zinc-800 text-zinc-500 border-zinc-700",
-  }[rsvp ?? "Not Invited"] || "bg-zinc-800 text-zinc-500 border-zinc-700";
+  } as Record<string, string>)[rsvp ?? "Not Invited"] ?? "bg-zinc-800 text-zinc-500 border-zinc-700";
 
   return (
     <div className={`inline-flex items-center gap-1.5 px-2 py-0.5 rounded-md border text-[10px] font-black uppercase tracking-tight ${styles}`}>
       <div className={`h-1 w-1 rounded-full ${rsvp === "Attending" ? "bg-emerald-400" : rsvp === "Declined" ? "bg-rose-400" : "bg-current"}`} />
-      {rsvp ?? "Not Invited"}
+      {translations[rsvp ?? "Not Invited"] ?? "No invitado"}
     </div>
   );
 }

@@ -23,19 +23,6 @@ export const websiteRouter = createTRPCRouter({
     )
     .mutation(async ({ input, ctx }) => {
       const userId = ctx.session.user.id;
-
-      // Check if website already exists
-      const existingWebsite = await ctx.db.website.findUnique({
-        where: { userId },
-      });
-
-      if (existingWebsite) {
-        throw new TRPCError({
-          code: "CONFLICT",
-          message: "Ya tienes un sitio web creado.",
-        });
-      }
-
       const {
         firstName,
         lastName,
@@ -45,52 +32,76 @@ export const websiteRouter = createTRPCRouter({
         email,
       } = input;
 
-      const subUrl =
-        `${firstName}${lastName}and${partnerFirstName}${partnerLastName}`.toLowerCase();
-      const url = `${basePath}/${subUrl}`;
+      return await ctx.db.$transaction(async (prisma) => {
+        // Check if website already exists (re-check inside transaction)
+        const existingWebsite = await prisma.website.findUnique({
+          where: { userId },
+        });
 
-      await ctx.db.event.create({
-        data: {
-          name: "Día de la Boda",
-          userId,
-          collectRsvp: true,
-        },
-      });
+        if (existingWebsite) {
+          throw new TRPCError({
+            code: "CONFLICT",
+            message: "Ya tienes un sitio web creado.",
+          });
+        }
 
-      await ctx.db.user.update({
-        where: { id: userId },
-        data: {
-          websiteUrl: url,
-          email,
-          groomFirstName: firstName,
-          groomLastName: lastName,
-          brideFirstName: partnerFirstName,
-          brideLastName: partnerLastName,
-        },
-      });
+        const subUrl =
+          `${firstName}${lastName}and${partnerFirstName}${partnerLastName}`.toLowerCase();
+        const url = `${basePath}/${subUrl}`;
 
-      return ctx.db.website.create({
-        data: {
-          userId,
-          url,
-          subUrl,
-          groomFirstName: firstName,
-          groomLastName: lastName,
-          brideFirstName: partnerFirstName,
-          brideLastName: partnerLastName,
-          generalQuestions: {
-            create: [
-              {
-                text: "¿Traerán niños menores de 10 años?",
-                type: "Text",
-              },
-              {
-                text: "¿Desean enviar un mensaje a la pareja?",
-                type: "Text",
-              },
-            ],
+        // Upsert the event to avoid duplicate ID issues in case of retries
+        await prisma.event.upsert({
+          where: {
+            id: (await prisma.event.findFirst({
+              where: { userId, name: "Día de la Boda" }
+            }))?.id ?? "none",
           },
-        },
+          update: {
+            name: "Día de la Boda",
+            collectRsvp: true,
+          },
+          create: {
+            name: "Día de la Boda",
+            userId,
+            collectRsvp: true,
+          },
+        });
+
+        await prisma.user.update({
+          where: { id: userId },
+          data: {
+            websiteUrl: url,
+            email,
+            groomFirstName: firstName,
+            groomLastName: lastName,
+            brideFirstName: partnerFirstName,
+            brideLastName: partnerLastName,
+          },
+        });
+
+        return prisma.website.create({
+          data: {
+            userId,
+            url,
+            subUrl,
+            groomFirstName: firstName,
+            groomLastName: lastName,
+            brideFirstName: partnerFirstName,
+            brideLastName: partnerLastName,
+            generalQuestions: {
+              create: [
+                {
+                  text: "¿Traerán niños menores de 10 años?",
+                  type: "Text",
+                },
+                {
+                  text: "¿Desean enviar un mensaje a la pareja?",
+                  type: "Text",
+                },
+              ],
+            },
+          },
+        });
       });
     }),
 

@@ -15,35 +15,35 @@ export default function DashboardControls({
   setCollapseSections,
 }: DashboardControlsProps) {
   return (
-    <div className="flex items-center">
-      <div className="flex cursor-pointer">
-        <HiOutlineArrowsUpDown size={21} color={sharedStyles.primaryColorHex} />
-        <button className={`text-${sharedStyles.primaryColor} mx-2`}>
-          Reorder
+    <div className="flex items-center gap-6">
+      <div className="flex cursor-pointer items-center gap-2 group transition-all hover:text-amber-200">
+        <HiOutlineArrowsUpDown size={18} className="text-zinc-500 group-hover:text-amber-200" />
+        <button className="text-[10px] font-black uppercase tracking-[0.2em] text-zinc-500 group-hover:text-amber-200">
+          Reordenar
         </button>
       </div>
       <div
-        className="flex cursor-pointer"
+        className="flex cursor-pointer items-center gap-2 group transition-all hover:text-amber-200"
         onClick={() => setCollapseSections((prev) => !prev)}
       >
         {collapseSections ? (
           <>
             <RiExpandUpDownLine
-              size={21}
-              color={sharedStyles.primaryColorHex}
+              size={18}
+              className="text-zinc-500 group-hover:text-amber-200"
             />
-            <button className={`text-${sharedStyles.primaryColor}`}>
-              Expand All
+            <button className="text-[10px] font-black uppercase tracking-[0.2em] text-zinc-500 group-hover:text-amber-200">
+              Expandir Todo
             </button>
           </>
         ) : (
           <>
             <BiCollapseVertical
-              size={21}
-              color={sharedStyles.primaryColorHex}
+              size={18}
+              className="text-zinc-500 group-hover:text-amber-200"
             />
-            <button className={`text-${sharedStyles.primaryColor}`}>
-              Collapse All
+            <button className="text-[10px] font-black uppercase tracking-[0.2em] text-zinc-500 group-hover:text-amber-200">
+              Colapsar Todo
             </button>
           </>
         )}

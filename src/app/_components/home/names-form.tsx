@@ -169,7 +169,7 @@ export default function NamesForm() {
               {createWebsite.isLoading ? (
                 <div className="flex items-center gap-3">
                   <LoadingSpinner />
-                  <span>Creando magía...</span>
+                  <span>Creando magia...</span>
                 </div>
               ) : (
                 <>

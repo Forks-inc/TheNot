@@ -1,4 +1,5 @@
 import { api } from "~/trpc/server";
+export const dynamic = "force-dynamic";
 import { cookies } from "next/headers";
 import { notFound } from "next/navigation";
 import PasswordPage from "../_components/website/password-page";

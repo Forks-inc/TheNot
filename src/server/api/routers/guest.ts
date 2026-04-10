@@ -9,6 +9,7 @@ export const guestRouter = createTRPCRouter({
   getAllByEventId: publicProcedure
     .input(z.object({ eventId: z.string() }))
     .query(async ({ ctx, input }) => {
+      // Find invitations for this event
       return await ctx.db.invitation.findMany({
         where: {
           eventId: input.eventId,
@@ -32,10 +33,10 @@ export const guestRouter = createTRPCRouter({
     }),
 
   getAllByUserId: publicProcedure.query(async ({ ctx }) => {
-    if (!ctx.auth.userId) return;
+    if (!ctx.session?.user?.id) return [];
     const guestList = await ctx.db.guest.findMany({
       where: {
-        userId: ctx.auth.userId,
+        userId: ctx.session.user.id,
       },
     });
 

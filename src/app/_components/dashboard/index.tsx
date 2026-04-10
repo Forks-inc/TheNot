@@ -70,7 +70,7 @@ export default function Dashboard({
       return acc;
     },
     { attending: 0, declined: 0, invited: 0 }
-  ) || { attending: 0, declined: 0, invited: 0 };
+  ) ?? { attending: 0, declined: 0, invited: 0 };
 
   const coupleNames = `${dashboardData?.weddingData?.brideFirstName} & ${dashboardData?.weddingData?.groomFirstName}`;
 
@@ -119,7 +119,7 @@ export default function Dashboard({
       <div className="grid grid-cols-1 xl:grid-cols-[1fr_320px] gap-12 pt-8">
         <div className="space-y-8">
           <div className="flex items-center justify-between border-b border-zinc-800 pb-6">
-            <h2 className="text-2xl font-black italic text-white tracking-tight">Website Sections</h2>
+            <h2 className="text-2xl font-black italic text-white tracking-tight">Secciones del Sitio</h2>
             <DashboardControls
               collapseSections={collapseSections}
               setCollapseSections={setCollapseSections}
@@ -127,7 +127,7 @@ export default function Dashboard({
           </div>
 
           <div className="space-y-4">
-            <PageSectionsTemplate title={"Home"} collapse={collapseSections}>
+            <PageSectionsTemplate title={"Inicio"} collapse={collapseSections}>
               <HomeContent
                 dashboardData={dashboardData}
                 events={events}
@@ -137,7 +137,7 @@ export default function Dashboard({
               />
             </PageSectionsTemplate>
 
-            <PageSectionsTemplate title={"RSVP"} collapse={collapseSections} setShowRsvpSettings={setShowRsvpSettings}>
+            <PageSectionsTemplate title={"Asistencia (RSVP)"} collapse={collapseSections} setShowRsvpSettings={setShowRsvpSettings}>
               <RsvpContent
                 events={dashboardData?.events}
                 totalGuests={dashboardData?.totalGuests ?? 0}
@@ -145,10 +145,9 @@ export default function Dashboard({
               />
             </PageSectionsTemplate>
             
-            {/* Other sections can be implemented similarly */}
-            <PageSectionsTemplate title={"Our Story"} collapse={collapseSections} />
-            <PageSectionsTemplate title={"Wedding Party"} collapse={collapseSections} />
-            <PageSectionsTemplate title={"Photos"} collapse={collapseSections} />
+            <PageSectionsTemplate title={"Nuestra Historia"} collapse={collapseSections} />
+            <PageSectionsTemplate title={"Cortejo Nupcial"} collapse={collapseSections} />
+            <PageSectionsTemplate title={"Galería de Fotos"} collapse={collapseSections} />
           </div>
         </div>
 

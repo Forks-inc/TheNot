@@ -42,13 +42,16 @@ export const authOptions: NextAuthOptions = {
       ...session,
       user: {
         ...session.user,
-        id: user?.id ?? token?.sub,
+        id: user?.id ?? token?.sub ?? "",
       },
     }),
   },
   adapter: PrismaAdapter(db),
   session: {
     strategy: "jwt",
+  },
+  pages: {
+    signIn: "/auth/signin",
   },
   providers: [
     GithubProvider({
@@ -70,7 +73,7 @@ export const authOptions: NextAuthOptions = {
           where: { email: credentials.email },
         });
 
-        if (!user || !user.password) {
+        if (!user?.password) {
           throw new Error("User not found or no password set");
         }
 

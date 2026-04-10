@@ -15,7 +15,7 @@ export const invitationRouter = createTRPCRouter({
       }),
     )
     .mutation(async ({ input, ctx }) => {
-      const userId = ctx.auth.userId;
+      const userId = ctx.session.user.id;
       const { guestId, eventId, rsvp } = input;
 
       return await ctx.db.invitation.create({
@@ -51,10 +51,10 @@ export const invitationRouter = createTRPCRouter({
     }),
 
   getAllByUserId: publicProcedure.query(async ({ ctx }) => {
-    if (!ctx.auth.userId) return;
+    if (!ctx.session?.user?.id) return [];
     return await ctx.db.invitation.findMany({
       where: {
-        userId: ctx.auth.userId,
+        userId: ctx.session.user.id,
       },
     });
   }),

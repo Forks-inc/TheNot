@@ -16,7 +16,7 @@ export default function EditFormButtons({
 
   return (
     <div className="space-y-4">
-      <div className="flex flex-col sm:flex-row gap-3">
+      <div className="flex flex-col sm:flex-row gap-4">
         <button
           type="button"
           disabled={isUpdatingHousehold}
@@ -25,9 +25,9 @@ export default function EditFormButtons({
             isLoading: isUpdatingHousehold,
           })}`}
         >
-          <div className="flex items-center justify-center gap-2">
-            <X className="h-4 w-4" />
-            <span>Cancel</span>
+          <div className="flex items-center justify-center gap-3">
+            <X className="h-3.5 w-3.5" />
+            <span>Cancelar</span>
           </div>
         </button>
         
@@ -40,9 +40,13 @@ export default function EditFormButtons({
             isLoading: isUpdatingHousehold,
           })}`}
         >
-          <div className="flex items-center justify-center gap-2">
-            <Save className="h-4 w-4" />
-            <span>{isUpdatingHousehold ? "Saving..." : "Save Changes"}</span>
+          <div className="flex items-center justify-center gap-3">
+            {isUpdatingHousehold ? (
+              <div className="h-3 w-3 border-2 border-black/20 border-t-black rounded-full animate-spin" />
+            ) : (
+              <Save className="h-3.5 w-3.5" />
+            )}
+            <span>{isUpdatingHousehold ? "Guardando..." : "Guardar Cambios"}</span>
           </div>
         </button>
       </div>
@@ -52,11 +56,11 @@ export default function EditFormButtons({
           e.preventDefault();
           setShowDeleteConfirmation(true);
         }}
-        className="w-full py-2 text-xs font-black uppercase tracking-widest text-zinc-600 hover:text-rose-500 transition-colors flex items-center justify-center gap-2"
+        className="w-full py-2 text-[10px] font-black uppercase tracking-[0.2em] text-zinc-600 hover:text-rose-500 transition-all flex items-center justify-center gap-2 group disabled:opacity-50"
         disabled={isUpdatingHousehold}
       >
-        <Trash2 className="h-3 w-3" />
-        <span>{isUpdatingHousehold ? "Processing..." : "Delete Party"}</span>
+        <Trash2 className="h-3 w-3 group-hover:scale-110 transition-transform" />
+        <span>{isUpdatingHousehold ? "Procesando..." : "Eliminar este grupo e invitaciones"}</span>
       </button>
     </div>
   );

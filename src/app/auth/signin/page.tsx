@@ -1,48 +1,60 @@
 "use client";
 
-import { useState } from "react";
-import { useRouter } from "next/navigation";
-import Link from "next/link";
-import { api } from "~/trpc/react";
+import { Suspense, useState } from "react";
 import { signIn } from "next-auth/react";
+import { useRouter, useSearchParams } from "next/navigation";
+import Link from "next/link";
 import { motion } from "framer-motion";
-import { Heart, Mail, Lock, User, ArrowRight, Sparkles } from "lucide-react";
+import { Heart, Mail, Lock, LogIn, Github, ArrowRight } from "lucide-react";
 import Image from "next/image";
 
-export default function SignupPage() {
+export const dynamic = "force-dynamic";
+
+export default function SignInPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen bg-zinc-950 flex items-center justify-center">
+        <div className="h-8 w-8 animate-spin rounded-full border-4 border-amber-200 border-t-transparent" />
+      </div>
+    }>
+      <SignInContent />
+    </Suspense>
+  );
+}
+
+function SignInContent() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const callbackUrl = searchParams.get("callbackUrl") ?? "/dashboard";
+  
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [name, setName] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
-
-  const signupMutation = api.user.signup.useMutation({
-    onSuccess: async () => {
-      const result = await signIn("credentials", {
-        email,
-        password,
-        redirect: false,
-      });
-
-      if (result?.error) {
-        setError("Error al iniciar sesión automáticamente. Por favor intenta entrar manualmente.");
-        setLoading(false);
-      } else {
-        router.push("/dashboard");
-      }
-    },
-    onError: (err) => {
-      setError(err.message === "User already exists" ? "Este correo electrónico ya está registrado." : err.message);
-      setLoading(false);
-    },
-  });
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
     setLoading(true);
-    signupMutation.mutate({ email, password, name });
+
+    try {
+      const result = await signIn("credentials", {
+        email,
+        password,
+        redirect: false,
+        callbackUrl,
+      });
+
+      if (result?.error) {
+        setError("Credenciales inválidas. Por favor verifica tu correo y contraseña.");
+        setLoading(false);
+      } else {
+        router.push(callbackUrl);
+      }
+    } catch (err) {
+      setError("Ocurrió un error inesperado. Intenta de nuevo.");
+      setLoading(false);
+    }
   };
 
   return (
@@ -68,18 +80,9 @@ export default function SignupPage() {
           <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-2xl border border-amber-200/20 bg-amber-200/5 backdrop-blur-xl">
             <Heart className="h-8 w-8 text-amber-200 fill-amber-200/20" />
           </div>
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 0.3 }}
-            className="mb-3 flex items-center gap-2 text-[10px] font-black uppercase tracking-[0.3em] text-amber-200/60"
-          >
-            <Sparkles className="h-3 w-3" />
-            <span>Midnight Premium</span>
-          </motion.div>
-          <h1 className="text-4xl font-extralight tracking-tight">Crea tu cuenta</h1>
+          <h1 className="text-4xl font-extralight tracking-tight">Bienvenido de nuevo</h1>
           <p className="mt-3 text-zinc-400 font-light">
-            Comienza a planear tu boda inolvidable hoy mismo.
+            Ingresa para continuar gestionando tu gran día.
           </p>
         </div>
 
@@ -96,24 +99,6 @@ export default function SignupPage() {
             )}
 
             <div className="space-y-4">
-              <div className="space-y-2">
-                <label className="text-xs font-semibold uppercase tracking-wider text-zinc-500 ml-1" htmlFor="name">
-                  Nombre Completo
-                </label>
-                <div className="relative group">
-                  <User className="absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-zinc-500 transition-colors group-focus-within:text-amber-200" />
-                  <input
-                    id="name"
-                    type="text"
-                    required
-                    value={name}
-                    onChange={(e) => setName(e.target.value)}
-                    className="block w-full rounded-2xl border border-white/10 bg-black/40 px-11 py-4 text-white placeholder-zinc-600 transition-all focus:border-amber-200/50 focus:outline-none focus:ring-1 focus:ring-amber-200/50"
-                    placeholder="Ej. Arturo G."
-                  />
-                </div>
-              </div>
-
               <div className="space-y-2">
                 <label className="text-xs font-semibold uppercase tracking-wider text-zinc-500 ml-1" htmlFor="email">
                   Correo Electrónico
@@ -133,9 +118,14 @@ export default function SignupPage() {
               </div>
 
               <div className="space-y-2">
-                <label className="text-xs font-semibold uppercase tracking-wider text-zinc-500 ml-1" htmlFor="password">
-                  Contraseña
-                </label>
+                <div className="flex items-center justify-between ml-1">
+                  <label className="text-xs font-semibold uppercase tracking-wider text-zinc-500" htmlFor="password">
+                    Contraseña
+                  </label>
+                  <Link href="#" className="text-[10px] font-bold text-amber-200/60 transition-colors hover:text-amber-200 uppercase tracking-widest">
+                    ¿Olvidaste tu contraseña?
+                  </Link>
+                </div>
                 <div className="relative group">
                   <Lock className="absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-zinc-500 transition-colors group-focus-within:text-amber-200" />
                   <input
@@ -160,20 +150,37 @@ export default function SignupPage() {
                 <div className="h-5 w-5 animate-spin rounded-full border-2 border-black border-t-transparent" />
               ) : (
                 <>
-                  Registrarse
-                  <ArrowRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-1" />
+                  Iniciar Sesión
+                  <LogIn className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-1" />
                 </>
               )}
             </button>
           </form>
 
+          <div className="relative my-8">
+            <div className="absolute inset-0 flex items-center">
+              <div className="w-full border-t border-white/10"></div>
+            </div>
+            <div className="relative flex justify-center text-xs uppercase tracking-[0.2em]">
+              <span className="bg-[#0c0c0e] px-4 text-zinc-600">O continúa con</span>
+            </div>
+          </div>
+
+          <button
+            onClick={() => void signIn("github")}
+            className="flex w-full items-center justify-center gap-3 rounded-2xl border border-white/10 bg-white/5 py-4 text-sm font-semibold transition-all hover:bg-white/10 active:scale-[0.98]"
+          >
+            <Github className="h-5 w-5" />
+            <span>GitHub</span>
+          </button>
+
           <div className="mt-8 border-t border-white/10 pt-6 text-center text-sm text-zinc-500">
-            ¿Ya tienes una cuenta?{" "}
+            ¿No tienes una cuenta?{" "}
             <Link
-              href="/auth/signin"
+              href="/signup"
               className="font-semibold text-amber-200/80 transition-colors hover:text-amber-200 underline underline-offset-4"
             >
-              Inicia Sesión
+              Regístrate gratis
             </Link>
           </div>
         </div>

@@ -1,4 +1,5 @@
 import { api } from "~/trpc/server";
+export const dynamic = "force-dynamic";
 import { redirect } from "next/navigation";
 import { sharedStyles } from "../utils/shared-styles";
 

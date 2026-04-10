@@ -12,8 +12,6 @@ export default function CountdownWidget({ daysRemaining, coupleNames }: Countdow
   const [timeLeft, setTimeLeft] = useState({ days: 0, hours: 0, minutes: 0, seconds: 0 });
 
   useEffect(() => {
-    // In a real app, we'd calculate this based on a target date.
-    // For now, we use the daysRemaining from the API.
     setTimeLeft({
       days: daysRemaining > 0 ? daysRemaining : 0,
       hours: Math.floor(Math.random() * 24),
@@ -23,39 +21,76 @@ export default function CountdownWidget({ daysRemaining, coupleNames }: Countdow
   }, [daysRemaining]);
 
   const units = [
-    { label: "Days", value: timeLeft.days },
-    { label: "Hours", value: timeLeft.hours },
-    { label: "Minutes", value: timeLeft.minutes },
-    { label: "Seconds", value: timeLeft.seconds },
+    { label: "Días", value: timeLeft.days },
+    { label: "Horas", value: timeLeft.hours },
+    { label: "Minutos", value: timeLeft.minutes },
+    { label: "Segundos", value: timeLeft.seconds },
   ];
 
   return (
     <motion.div
       initial={{ opacity: 0, scale: 0.95 }}
       animate={{ opacity: 1, scale: 1 }}
-      className="glass-card p-10 rounded-[3rem] relative overflow-hidden flex flex-col items-center justify-center text-center gap-6 group"
+      className="glass-card p-12 rounded-[3.5rem] relative overflow-hidden flex flex-col items-center justify-center text-center gap-10 group bg-zinc-900/40 border border-white/5 shadow-2xl shadow-black"
     >
-      <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-primary to-transparent" />
+      {/* Premium Glow Header */}
+      <div className="absolute top-0 inset-x-0 h-1.5 bg-gradient-to-r from-transparent via-amber-500/50 to-transparent" />
       
-      <div className="space-y-1">
-        <h2 className="text-zinc-500 font-bold uppercase tracking-[0.3em] text-[10px]">The Celebration of</h2>
-        <p className="text-2xl font-black gradient-text italic">{coupleNames}</p>
+      <div className="space-y-4 relative z-10">
+        <motion.h2 
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="text-zinc-500 font-black uppercase tracking-[0.4em] text-[10px]"
+        >
+          La Celebración de
+        </motion.h2>
+        <motion.p 
+          initial={{ opacity: 0, scale: 0.9 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ delay: 0.1 }}
+          className="text-4xl font-black text-white italic tracking-tighter antialiased"
+        >
+          {coupleNames.split(" & ").map((name, i) => (
+            <span key={name}>
+              {i > 0 && <span className="text-amber-200 mx-3 not-italic font-normal">&</span>}
+              {name}
+            </span>
+          ))}
+        </motion.p>
       </div>
 
-      <div className="flex gap-4 md:gap-8">
-        {units.map((unit) => (
-          <div key={unit.label} className="flex flex-col items-center">
-            <div className="text-4xl md:text-6xl font-black text-white italic tracking-tighter">
+      <div className="flex gap-4 md:gap-10 relative z-10">
+        {units.map((unit, index) => (
+          <motion.div 
+            key={unit.label}
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.2 + (index * 0.1) }}
+            className="flex flex-col items-center"
+          >
+            <div className="text-4xl md:text-6xl font-black text-white italic tracking-tighter leading-none mb-3 tabular-nums">
               {unit.value.toString().padStart(2, "0")}
             </div>
-            <span className="text-[10px] font-bold uppercase tracking-widest text-zinc-500 mt-2">{unit.label}</span>
-          </div>
+            <div className="h-0.5 w-6 bg-amber-500/20 rounded-full mb-3" />
+            <span className="text-[10px] font-black uppercase tracking-[0.2em] text-zinc-500">
+              {unit.label}
+            </span>
+          </motion.div>
         ))}
       </div>
 
-      <div className="px-6 py-2 rounded-full bg-white/5 border border-white/10 text-[10px] font-bold uppercase tracking-widest text-zinc-400">
-        Counting down the days...
-      </div>
+      <motion.div 
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ delay: 0.6 }}
+        className="relative z-10 px-8 py-3 rounded-2xl bg-zinc-950/50 border border-white/5 text-[10px] font-black uppercase tracking-[0.3em] text-amber-200/60 backdrop-blur-xl"
+      >
+        Comienza la cuenta regresiva
+      </motion.div>
+      
+      {/* Background Decorative Element */}
+      <div className="absolute -bottom-24 -right-24 w-64 h-64 bg-amber-500/5 rounded-full blur-[100px] pointer-events-none" />
+      <div className="absolute -top-24 -left-24 w-64 h-64 bg-zinc-500/5 rounded-full blur-[100px] pointer-events-none" />
     </motion.div>
   );
 }

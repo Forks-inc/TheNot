@@ -45,32 +45,31 @@ export default function RsvpFormSettings({
           setShowQuestionForm={setShowQuestionForm}
         />
       )}
-      <div className="absolute left-0 top-0 flex h-[120px] w-screen items-center bg-white pl-10">
+      <div className="absolute left-0 top-0 flex h-[120px] w-screen items-center bg-zinc-900/50 backdrop-blur-xl border-b border-white/5 pl-10">
         <div
-          className="flex cursor-pointer gap-3"
+          className="flex cursor-pointer gap-3 text-white transition-colors hover:text-amber-200"
           onClick={() => setShowRsvpSettings(false)}
         >
           <GoArrowLeft size={36} />
-          <span className="text-2xl font-semibold">Online RSVP</span>
+          <span className="text-2xl font-light tracking-tight">Configuración de <span className="font-bold italic">Asistencia</span></span>
         </div>
       </div>
-      <div className="m-auto w-[800px]">
-        <div className="mt-10 flex items-center gap-2 bg-blue-50 p-4">
-          <TiEyeOutline size={30} color="blue" />
-          <p>
-            This form is <b>visible</b> on your Website. Guests on your Guest
-            List can RVSP{" "}
-            <button className="underline" onClick={toggleEditRsvpSettingsForm}>
-              View Settings
+      <div className="m-auto w-[800px] pt-32">
+        <div className="mt-10 flex items-center gap-4 rounded-2xl bg-amber-200/5 p-6 border border-amber-200/20 backdrop-blur-xl">
+          <TiEyeOutline size={30} className="text-amber-200" />
+          <div className="text-sm text-zinc-300">
+            Este formulario es <b className="text-amber-200 uppercase tracking-widest text-[10px]">Visible</b> en tu sitio web. Los invitados de tu lista pueden confirmar su asistencia.{" "}
+            <button className="underline text-white font-semibold hover:text-amber-200 transition-colors" onClick={toggleEditRsvpSettingsForm}>
+              Ver Configuración
             </button>
-          </p>
+          </div>
         </div>
-        <ul>
+        <ul className="mt-8 space-y-12">
           {dashboardData?.events.map((event) => {
             const { attending, invited, declined } = event.guestResponses;
             const numGuests = attending + invited + declined;
             return (
-              <section key={event.id} className="border-b py-12">
+              <section key={event.id} className="pb-12 border-b border-white/5">
                 <EventRsvpSection
                   event={event}
                   numGuests={numGuests}
@@ -131,16 +130,16 @@ const EventRsvpSection = ({
   return (
     <>
       <div className="flex items-center justify-between pb-4">
-        <h2 className="text-2xl font-bold">{event.name}</h2>
+        <h2 className="text-2xl font-bold text-white">{event.name}</h2>
         <div className="flex items-center gap-3">
-          <span>Collect RSVPs</span>
+          <span className="text-xs font-bold uppercase tracking-widest text-zinc-500">Recibir RSVPs</span>
           {updateEventRsvpSetting.isLoading ? (
             <LoadingSpinner size={20} />
           ) : (
             <Switch
               id={`${event.id}-rsvp-toggle`}
               checked={event.collectRsvp}
-              onClick={() =>
+              onCheckedChange={() =>
                 updateEventRsvpSetting.mutate({
                   eventId: event.id,
                   collectRsvp: !event.collectRsvp,
@@ -152,30 +151,29 @@ const EventRsvpSection = ({
       </div>
       {event.collectRsvp && (event.questions?.length ?? 0) > 0 ? (
         <>
-          <p>
-            Questions will be asked to all of the {numGuests} guests on the{" "}
-            <span className="font-semibold underline">{event.name}</span> list
-            who RSVP &apos;Yes&apos;
+          <p className="text-sm text-zinc-400">
+            Se le pedirá responder a estas preguntas a los {numGuests} invitados en la lista de{" "}
+            <span className="font-semibold text-amber-200 underline">{event.name}</span>{" "}
+            que confirmen su asistencia.
           </p>
-          <ul className="mt-5 flex flex-col gap-3">
+          <ul className="mt-5 flex flex-col gap-4">
             {event.questions?.map((question) => {
               return (
-                <li key={question.id} className="border-2 p-4">
+                <li key={question.id} className="rounded-2xl border border-white/10 bg-black/20 p-5 group transition-all hover:border-amber-200/30">
                   <div className="flex items-center justify-between">
                     {question.type === "Text" ? (
-                      <p>{question.text}</p>
+                      <p className="text-sm text-white">{question.text}</p>
                     ) : (
                       <div>
-                        <p>{question.text}</p>
-                        <span className="text-sm">
-                          {question.options?.length} options
+                        <p className="text-sm text-white">{question.text}</p>
+                        <span className="text-[10px] font-bold uppercase tracking-widest text-zinc-600">
+                          {question.options?.length} opciones
                         </span>
                       </div>
                     )}
                     <BsPencil
-                      size={20}
-                      color={sharedStyles.primaryColorHex}
-                      className="cursor-pointer"
+                      size={18}
+                      className="cursor-pointer text-zinc-500 transition-colors group-hover:text-amber-200"
                       onClick={() => {
                         setUseEditMode(true);
                         setPrefillQuestion(question);
@@ -188,16 +186,11 @@ const EventRsvpSection = ({
             })}
           </ul>
           <div
-            className="mt-5 flex w-fit cursor-pointer gap-2 decoration-pink-400 hover:underline"
+            className="mt-6 flex w-fit cursor-pointer items-center gap-2 text-xs font-bold uppercase tracking-widest text-amber-200/80 transition-all hover:text-amber-200 hover:underline underline-offset-4"
             onClick={() => onAddQuestion(event.id)}
           >
-            <AiOutlinePlusCircle
-              size={25}
-              color={sharedStyles.primaryColorHex}
-            />
-            <span className={`text-${sharedStyles.primaryColor}`}>
-              Add a Follow-Up Question
-            </span>
+            <AiOutlinePlusCircle size={20} />
+            <span>Agregar Pregunta de Seguimiento</span>
           </div>
         </>
       ) : event.collectRsvp ? (

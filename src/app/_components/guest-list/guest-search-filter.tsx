@@ -96,7 +96,7 @@ export default function GuestSearchFilter({
         <input
           id="search-guests-input"
           className="h-12 w-64 md:w-80 rounded-2xl bg-zinc-900 border border-zinc-800 pl-11 pr-4 text-sm text-white placeholder:text-zinc-600 focus:border-primary focus:ring-1 focus:ring-primary/20 transition-all outline-none"
-          placeholder="Search by name..."
+          placeholder="Buscar por nombre..."
           value={searchInput}
           onChange={(e) => filterHouseholdsBySearch(e.target.value)}
         />
@@ -114,7 +114,13 @@ export default function GuestSearchFilter({
           <div className="flex items-center gap-2">
             <Filter className="h-4 w-4" />
             <span className="text-xs font-bold uppercase tracking-widest">
-              {selectedRsvpFilter ? selectedRsvpFilter.rsvpValue : "RSVP Status"}
+              {selectedRsvpFilter ? (
+                selectedRsvpFilter.rsvpValue === "Invited" ? "Invitado" :
+                selectedRsvpFilter.rsvpValue === "Attending" ? "Asistirá" :
+                selectedRsvpFilter.rsvpValue === "Declined" ? "Declinó" :
+                selectedRsvpFilter.rsvpValue === "Not Invited" ? "No invitado" :
+                selectedRsvpFilter.rsvpValue
+              ) : "Estado RSVP"}
             </span>
           </div>
           <ChevronDown className={`h-4 w-4 transition-transform ${showInvitationDropdown ? "rotate-180" : ""}`} />
@@ -134,21 +140,26 @@ export default function GuestSearchFilter({
                     <div key={event.id} className="px-2 py-1">
                       <div className="px-3 py-2">
                         <span className="text-[10px] font-black uppercase tracking-[0.2em] text-zinc-600">
-                          {event.name}
+                          {event.name === "Wedding" ? "Boda" : event.name}
                         </span>
                       </div>
                       <div className="space-y-0.5">
-                        {["Invited", "Attending", "Declined", "Not Invited"].map((rsvp) => (
+                        {[
+                          { key: "Invited", label: "Invitado" },
+                          { key: "Attending", label: "Asistirá" },
+                          { key: "Declined", label: "Declinó" },
+                          { key: "Not Invited", label: "No invitado" }
+                        ].map((rsvp) => (
                           <button
-                            key={rsvp}
-                            onClick={() => filterHouseholdsByInvitation({ eventId: event.id, rsvpValue: rsvp })}
+                            key={rsvp.key}
+                            onClick={() => filterHouseholdsByInvitation({ eventId: event.id, rsvpValue: rsvp.key })}
                             className="w-full flex items-center justify-between px-3 py-2 rounded-xl hover:bg-white/5 transition-colors group text-left"
                           >
                             <div className="flex items-center gap-2">
-                              <div className={`h-1.5 w-1.5 rounded-full ${sharedStyles.getRSVPcolor(rsvp)}`} />
-                              <span className="text-sm text-zinc-400 group-hover:text-white transition-colors">{rsvp}</span>
+                              <div className={`h-1.5 w-1.5 rounded-full ${sharedStyles.getRSVPcolor(rsvp.key)}`} />
+                              <span className="text-sm text-zinc-400 group-hover:text-white transition-colors">{rsvp.label}</span>
                             </div>
-                            {event.id === selectedRsvpFilter?.eventId && rsvp === selectedRsvpFilter?.rsvpValue && (
+                            {event.id === selectedRsvpFilter?.eventId && rsvp.key === selectedRsvpFilter?.rsvpValue && (
                               <Check className="h-4 w-4 text-primary" />
                             )}
                           </button>
@@ -168,7 +179,7 @@ export default function GuestSearchFilter({
           className="flex items-center gap-2 px-4 py-2 text-xs font-bold text-zinc-500 hover:text-rose-500 transition-colors"
         >
           <X className="h-4 w-4" />
-          <span>Clear Filters</span>
+          <span>Limpiar filtros</span>
         </button>
       )}
     </div>
